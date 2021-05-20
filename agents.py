@@ -1,41 +1,31 @@
-import asyncio
-import os
-
-from spade import agent
-import controller as ctrl
-
-from chatterbot import ChatBot
-from chatterbot.trainers import ListTrainer
-
-from spade import quit_spade
-from spade.agent import Agent
-from spade.message import Message
-from spade.template import Template
-from spade.behaviour import OneShotBehaviour, State
-from spade.behaviour import FSMBehaviour
-from spade.behaviour import CyclicBehaviour
-
 import csv
 import pickle
+import asyncio
 import pandas as pd
+import controller as ctrl
+
 from os import walk
 from os import remove
 from os.path import join
 from os.path import exists
 from os.path import basename
-from matplotlib import pyplot as plt
+
+from chatterbot import ChatBot
+from chatterbot.trainers import ListTrainer
+
+from spade.agent import Agent
+from spade.message import Message
+from spade.template import Template
+from spade.behaviour import State
+from spade.behaviour import FSMBehaviour
 
 from nltk import pos_tag
-from nltk.corpus import wordnet as wn
 from nltk.corpus import stopwords as sw
 from nltk.stem import WordNetLemmatizer
 from nltk.tokenize import word_tokenize
 
 from sklearn.svm import SVC
-from sklearn import model_selection
 from sklearn.preprocessing import LabelEncoder
-from sklearn.metrics import plot_confusion_matrix
-from sklearn.metrics import classification_report
 from sklearn.model_selection import train_test_split
 from sklearn.feature_extraction.text import TfidfVectorizer
 
@@ -68,12 +58,8 @@ class ChatBotAgent(Agent):
         return ChatBotAgent.__textFromGui
 
     # Esta clase interna sirve para definir el comportamiento del agente.
-    class fsmBehaviour(FSMBehaviour):
-        
-        def __init__(self, *args, **kwargs):
-            
-            # Llamada a la super (Agent).
-            super().__init__(*args, **kwargs)
+    class FsmBehaviour(FSMBehaviour):
+        pass
 
     class initState(State):
 
@@ -95,7 +81,7 @@ class ChatBotAgent(Agent):
                     logic_adapters=[
                         {
                             'import_path': 'chatterbot.logic.BestMatch',
-                            'maximum_similarity_threshold': 0.80,
+                            'maximum_similarity_threshold': 0.90,
                             'default_response': self.agent.defaultAnswer
                         }
                     ],
@@ -106,6 +92,7 @@ class ChatBotAgent(Agent):
                 dialogs = (
                     ['classify', self.agent.answerForClassification],
                     ['classify new', self.agent.answerForClassification],
+                    ['classify that', self.agent.answerForClassification],
                     ['classify this', self.agent.answerForClassification],
                     ['i want you to classify this new', self.agent.answerForClassification]
                 )
@@ -116,6 +103,23 @@ class ChatBotAgent(Agent):
                 # Entrenamos al bot con las conversaciones definidas.
                 for dialog in dialogs:
                     trainer.train(dialog)
+
+            else:
+
+                # Instanciamos el chatBot con sus respectivos ficheros de configuración.
+                self.agent.chatBot = ChatBot(
+                    name='ChatBot',
+                    read_only=True,
+                    storage_adapter='chatterbot.storage.SQLStorageAdapter',
+                    logic_adapters=[
+                        {
+                            'import_path': 'chatterbot.logic.BestMatch',
+                            'maximum_similarity_threshold': 0.80,
+                            'default_response': self.agent.defaultAnswer
+                        }
+                    ],
+                    database_uri='sqlite:///database.sqlite3'
+                )
 
             # Cambiamos al estado INPUT en que averiguamos que quiere el usuario.
             self.set_next_state("INPUT_STATE")
@@ -140,11 +144,11 @@ class ChatBotAgent(Agent):
 
             # Pasamos a clasificar o ciclamos en el estado.
             if text == self.agent.answerForClassification:
-                self.set_next_state("NEWS_STATE")
+                self.set_next_state("SEND_STATE")
             else:
                 self.set_next_state("INPUT_STATE")
 
-    class newsState(State):
+    class sendState(State):
 
         # Este método se llama después de ejecutarse on_start().
         async def run(self):
@@ -162,6 +166,23 @@ class ChatBotAgent(Agent):
             # Volvemos a dejar el texto en None para que vuelva a quedarse esperando en el bucle.
             ChatBotAgent.setUserText(None)
 
+            # Pasamos al estado de escucha para que el agente de clasificación nos pueda devolver el tipo de noticia.
+            self.set_next_state("RECEIVE_STATE")
+
+    class receiveState(State):
+
+        # Este método se llama después de ejecutarse on_start().
+        async def run(self):
+
+            # Espera como mucho N segundos para recibir algún mensaje.
+            msg = await self.receive(timeout=3600)
+            
+            # msg es un objeto o bien Message o bien None.
+            if msg:
+
+                # Devolvemos el texto para que llegue a la GUI.
+                ctrl.Controller.getInstance().action({'event': 'BOT_ANSWER', 'object': "bot > " + msg.body})
+
             # Volvemos al estado inicial para saber que quiere el usuario.
             self.set_next_state("INPUT_STATE")
 
@@ -169,21 +190,23 @@ class ChatBotAgent(Agent):
     async def setup(self):
         
         # Declaramos el comportamiento compuesto.
-        fsm = self.fsmBehaviour()
+        fsm = self.FsmBehaviour()
         
         # Declaramos los subcomportamientos.
         fsm.add_state(name="INIT_STATE", state=self.initState(), initial=True)
         fsm.add_state(name="INPUT_STATE", state=self.inputState())
-        fsm.add_state(name="NEWS_STATE", state=self.newsState())
+        fsm.add_state(name="SEND_STATE", state=self.sendState())
+        fsm.add_state(name="RECEIVE_STATE", state=self.receiveState())
 
         # Declaramos las posibles transiciones entre estados.
         fsm.add_transition(source="INIT_STATE", dest="INPUT_STATE")
         fsm.add_transition(source="INPUT_STATE", dest="INPUT_STATE")
-        fsm.add_transition(source="INPUT_STATE", dest="NEWS_STATE")
-        fsm.add_transition(source="NEWS_STATE", dest="INPUT_STATE")
+        fsm.add_transition(source="INPUT_STATE", dest="SEND_STATE")
+        fsm.add_transition(source="SEND_STATE", dest="RECEIVE_STATE")
+        fsm.add_transition(source="RECEIVE_STATE", dest="INPUT_STATE")
 
         # Encolamos el siguiente comportamiento.
-        self.add_behaviour(behaviour=fsm)
+        self.add_behaviour(behaviour=fsm, template=Template(to="dasi1@blabber.im"))
 
 #******************************************************************************************************************************************
 #******************************************************************************************************************************************
@@ -221,7 +244,10 @@ class ClassifierAgent(Agent):
         super().__init__(*args, **kwargs)
 
     # Esta clase interna sirve para definir el comportamiento del agente.
-    class InitBehaviour(OneShotBehaviour):
+    class FsmBehaviour(FSMBehaviour):
+        pass
+
+    class initState(State):
 
         # Este método se llama después de ejecutarse on_start().
         async def run(self):
@@ -250,7 +276,6 @@ class ClassifierAgent(Agent):
 
                                 # Escribimos dos columnas: contenido de la noticia y tipo de deporte.
                                 csvWriter.writerow([file.read(), basename(directory)])
-
 
                 # Creamos un corpus, es decir, un conjunto de textos de diversas clases ordenados y clasificados. 
                 corpus = pd.read_csv("newsClassified.csv", encoding='utf-8')
@@ -288,48 +313,90 @@ class ClassifierAgent(Agent):
                 pickle.dump(labelEncoder, open('labelEncoder.pkl', 'wb'))
                 pickle.dump(tfIdfMatrixVectors, open('tFidfMatrixVector.pkl', 'wb'))
 
-            else:
+            # Cargar la máquina de vectores de soporte.
+            self.agent.svm = pickle.load(open('svm.pkl', 'rb'))
 
-                pass
+            # Cargamos el conversor de etiquetas.
+            self.agent.labelEncoder = pickle.load(open('labelEncoder.pkl', 'rb'))
 
-    # Esta clase interna sirve para definir el comportamiento del agente.
-    class WaitForRequest(CyclicBehaviour):
+            # Cargamos la matriz de vectores TF-IDF.
+            self.agent.tFidfMatrixVector = pickle.load(open('tFidfMatrixVector.pkl', 'rb'))
+
+            # Una vez comfigurado todo pasamos al estado de recepción a la espera de noticias que clasificar.
+            self.set_next_state("RECEIVE_STATE")
+
+    class receiveState(State):
 
         # Este método se llama después de ejecutarse on_start().
         async def run(self):
 
             # Espera como mucho N segundos para recibir algún mensaje.
-            newsName = await self.receive(timeout=3600)
+            msg = await self.receive(timeout=3600)
             
-            # msg es un objeto o bien Message o bien None. 
-            if newsName:
-                
-                # Cargar la máquina de vectores de soporte.
-                svm = pickle.load(open('svm.pkl', 'rb'))
+            # msg es un objeto o bien Message o bien None.
+            if msg:
+                    
+                # Comprobamos que la noticia esté en la carpeta.                
+                if exists(join("news", msg.body)):
 
-                # Cargamos el conversor de etiquetas.
-                labelEncoder = pickle.load(open('labelEncoder.pkl', 'rb'))
+                    # Aquí volcaremos el contenido del fichero.
+                    fileContent = None
 
-                # Cargamos la matriz de vectores TF-IDF.
-                tFidfMatrixVector = pickle.load(open('tFidfMatrixVector.pkl', 'rb'))
+                    # Leemos el contenido del fichero.
+                    with open(join("news", msg.body), 'r') as file:
 
-                # Vamos a clasificar un nuevo texto ajeno a los textos para el entrenamiento y el testing.
-                tfIdfVectorOfNewText = tFidfMatrixVector.transform([preprocessing(newsName.body)])
+                        # Obtenemos el contenido del fichero.
+                        fileContent = file.read()
 
-                # Realizamos la predicción.
-                svmPrediction = svm.predict(tfIdfVectorOfNewText)
+                    # Vamos a clasificar un nuevo texto ajeno a los textos para el entrenamiento y el testing.
+                    tfIdfVectorOfNewText = self.agent.tFidfMatrixVector.transform([preprocessing(fileContent)])
 
-                # Mostramos el resultado.
-                print("La noticia pertenece a la clase: ", labelEncoder.inverse_transform(svmPrediction)[0])
+                    # Realizamos la predicción.
+                    svmPrediction = self.agent.svm.predict(tfIdfVectorOfNewText)
+
+                    # Alamacenamos esta predicción como la última realizada.
+                    self.agent.lastPrediction = "I think it's a " + self.agent.labelEncoder.inverse_transform(svmPrediction)[0] + " news"
+
+                else:
+
+                    # No se ha encontrado la noticia.
+                    self.agent.lastPrediction = "The notice wasn't found in 'news' folder"
+
+            # Una vez se ha clasificado la noticia pasamos al estado de envío para informar al agente ChatBot.
+            self.set_next_state("SEND_STATE")
+
+    class sendState(State):
+
+        # Este método se llama después de ejecutarse on_start().
+        async def run(self):
+            
+            # Envía el mensaje.
+            await self.send(msg=Message(to="dasi1@blabber.im", body=self.agent.lastPrediction))
+
+            # Si no se introduce un poco de retardo, el envío podría no completarse.
+            await asyncio.sleep(0.2)
+
+            # Pasamos al estado de escucha para que el agente de clasificación nos pueda devolver el tipo de noticia.
+            self.set_next_state("RECEIVE_STATE")
 
     # Este método se llama cuando se inicializa el agente.
     async def setup(self):
 
-        # Encolamos el siguiente comportamiento.
-        self.add_behaviour(behaviour=self.InitBehaviour())
+        # Declaramos el comportamiento compuesto.
+        fsm = self.FsmBehaviour()
+        
+        # Declaramos los subcomportamientos.
+        fsm.add_state(name="INIT_STATE", state=self.initState(), initial=True)
+        fsm.add_state(name="RECEIVE_STATE", state=self.receiveState())
+        fsm.add_state(name="SEND_STATE", state=self.sendState())
+
+        # Declaramos las posibles transiciones entre estados.
+        fsm.add_transition(source="INIT_STATE", dest="RECEIVE_STATE")
+        fsm.add_transition(source="RECEIVE_STATE", dest="SEND_STATE")
+        fsm.add_transition(source="SEND_STATE", dest="RECEIVE_STATE")
 
         # Encolamos el siguiente comportamiento.
-        self.add_behaviour(behaviour=self.WaitForRequest(), template=Template(to="dasi2@blabber.im"))
+        self.add_behaviour(behaviour=fsm, template=Template(to="dasi2@blabber.im"))
 
 #******************************************************************************************************************************************
 #******************************************************************************************************************************************

@@ -1,10 +1,9 @@
 from tkinter import *
-import tkinter
-from typing import overload
+from spade import quit_spade
 from controller import Controller
-# from controller import Controller
 from tkinter.scrolledtext import ScrolledText
 
+# **********************************************************************************************************************
 # **********************************************************************************************************************
 # **********************************************************************************************************************
 # **********************************************************************************************************************
@@ -36,9 +35,16 @@ class Window(Tk):
 # **********************************************************************************************************************
 # **********************************************************************************************************************
 # **********************************************************************************************************************
+# **********************************************************************************************************************
 
-# Clase Abstracta para GUI's.
-class GuiChat:
+# Clase "interfaz" para GUI's.
+class GUI:
+    # Método para actualizar la interfaz de usuario. 
+    def update(self, context):
+        pass
+
+# Clase "abstract" para hacer "singleton" una GUI concreta.
+class GuiChat(GUI):
 
     __instance = None
 
@@ -50,19 +56,18 @@ class GuiChat:
 
         return GuiChat.__instance
 
-    # Método para actualizar la interfaz de usuario. 
-    def update(self, context):
-        pass
-
 # **********************************************************************************************************************
 # **********************************************************************************************************************
 # **********************************************************************************************************************
 
+# Clase implementación de una interfaz gráfica de usuario.
 class GuiChatImp(Frame, GuiChat):
    
     def __init__(self, parent, closeWindow):
     
         Frame.__init__(self, parent)
+
+        self.closeWindow = closeWindow
 
         self.grid(row=0, column=0, sticky="nsew")
         self.grid_rowconfigure(0, weight=1)
@@ -78,7 +83,7 @@ class GuiChatImp(Frame, GuiChat):
         self.btnEnviar = Button(self, text="SEND", font=("Arial Bold", 20), command=lambda : self.__send())
         self.btnEnviar.grid(row=2, column=0, padx=10, pady=10, sticky=W+E)
 
-        self.btnSalir = Button(self, text="EXIT", font=("Arial Bold", 20), command=lambda : closeWindow())
+        self.btnSalir = Button(self, text="EXIT", font=("Arial Bold", 20), command=lambda : self.__close())
         self.btnSalir.grid(row=3, column=0, padx=10, pady=10, sticky=W+E)
 
     def __send(self):
@@ -90,9 +95,15 @@ class GuiChatImp(Frame, GuiChat):
 
             self.txtInfo.configure(state='normal')
             self.txtInfo.insert(INSERT, "human > " + text + "\n")
+            self.txtInfo.yview(END)
             self.txtInfo.configure(state='disabled')
 
-            Controller.getInstance().action({ 'event': 'HUMAN_INPUT', 'object': text })
+            Controller.getInstance().action({ 'event': 'HUMAN_INPUT', 'object': str(text).lower() })
+
+    def __close(self):
+
+        quit_spade()
+        self.closeWindow()
 
     def update(self, context):
 
