@@ -1,3 +1,4 @@
+import view
 from model import Model
 
 class Controller:
@@ -16,6 +17,12 @@ class Controller:
 
         if context["event"] == "INITALIZE":
 
-            model = Model.getInstance()
+            Model.getInstance().loadAgents()
 
+        elif context["event"] == "HUMAN_INPUT":
 
+            Model.getInstance().sendUserInputToChatBotAgent(context["object"])
+
+        elif context["event"] == "BOT_ANSWER":
+
+            view.GuiChat.getInstance().update({ 'event': 'UPDATE_CHAT' , 'object': context["object"] })
