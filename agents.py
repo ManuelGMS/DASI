@@ -171,7 +171,7 @@ class ChatBotAgent(Agent):
             # Volvemos a dejar el texto en None para que vuelva a quedarse esperando en el bucle.
             ChatBotAgent.setUserText(None)
 
-            #
+            # Classify -> True ; Analyze -> False
             self.agent.classifyOrAnalyze = None
 
             # Pasamos a clasificar o ciclamos en el estado.
