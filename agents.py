@@ -171,6 +171,9 @@ class ChatBotAgent(Agent):
             # Volvemos a dejar el texto en None para que vuelva a quedarse esperando en el bucle.
             ChatBotAgent.setUserText(None)
 
+            #
+            self.agent.classifyOrAnalyze = None
+
             # Pasamos a clasificar o ciclamos en el estado.
             if text == self.agent.answerForClassification:
                 self.agent.classifyOrAnalyze = True
@@ -181,8 +184,6 @@ class ChatBotAgent(Agent):
             else:
                 self.set_next_state("INPUT_STATE")
             
-            self.agent.classifyOrAnalyze = None
-
     class sendState(State):
 
         # Este método se llama después de ejecutarse on_start().

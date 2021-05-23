@@ -1,6 +1,6 @@
 from tkinter import *
 from spade import quit_spade
-from controller import Controller
+import controller as ctrl
 from tkinter.scrolledtext import ScrolledText
 
 # **********************************************************************************************************************
@@ -98,7 +98,7 @@ class GuiChatImp(Frame, GuiChat):
             self.txtInfo.yview(END)
             self.txtInfo.configure(state='disabled')
 
-            Controller.getInstance().action({ 'event': 'HUMAN_INPUT', 'object': str(text).lower() })
+            ctrl.Controller.getInstance().action({ 'event': 'HUMAN_INPUT', 'object': str(text).lower() })
 
     def __close(self):
 
