@@ -1,6 +1,7 @@
 import csv
 import pickle
 import asyncio
+from chatterbot.utils import nltk_download_corpus
 import pandas as pd
 import controller as ctrl
 
@@ -67,25 +68,34 @@ class ChatBotAgent(Agent):
         async def run(self):
 
             # Comprobamos que existen ambos ficheros, de lo contrario hay que realizar el entrenamiento.
-            if not (exists("database.sqlite3") and exists("sentence_tokenizer.pickle")):
+            if not (exists("chatterbot/database.sqlite3") and exists("sentence_tokenizer.pickle")):
 
                 # Si queda alguno de ellos hay que eliminarlos para volver a generarlos.
-                if exists("database.sqlite3"): remove("database.sqlite3")
+                if exists("chatterbot/database.sqlite3"): remove("database.sqlite3")
                 if exists("sentence_tokenizer.pickle"): remove("sentence_tokenizer.pickle")
 
                 # Instanciamos un chatBot.
                 self.agent.chatBot = ChatBot(
+                    silence_performance_warning=True,
+                    # Nombre del ChatBot.
                     name='ChatBot',
+                    # Evita que el bot aprenda de las conversaciones que tienen lugar después del entrenamiento.
                     read_only=True,
-                    storage_adapter='chatterbot.storage.SQLStorageAdapter',
+                    # Los datos relacionados con las conversaciones se almacenarán en una base de datos SQL.
+                    storage_adapter='chatterbot.storage.SQLStorageAdapter', 
+                    # Indica la base de datos en la que se almacenará la información de las conversaciones.
+                    database_uri='sqlite:///chatterbot/database.sqlite3',
+                    # Los adaptadores lógicos determinan cómo se selecciona una respuesta ante una entrada.
                     logic_adapters=[
                         {
+                            # Adaptador lógico que devuelve una salida en base a la mayor coincidencia con una entrada conocida.
                             'import_path': 'chatterbot.logic.BestMatch',
-                            'maximum_similarity_threshold': 0.90,
+                            # Umbral de similitud con las frases introducidas.
+                            'maximum_similarity_threshold': 0.80,
+                            # Respuesta por defecto cuando la entrada es desconocida.
                             'default_response': self.agent.defaultAnswer
                         }
-                    ],
-                    database_uri='sqlite:///database.sqlite3'
+                    ]
                 )
 
                 # Grafos de las conversaciones.
@@ -106,19 +116,27 @@ class ChatBotAgent(Agent):
 
             else:
 
-                # Instanciamos el chatBot con sus respectivos ficheros de configuración.
+                # Instanciamos un chatBot.
                 self.agent.chatBot = ChatBot(
+                    # Nombre del ChatBot.
                     name='ChatBot',
+                    # Evita que el bot aprenda de las conversaciones que tienen lugar después del entrenamiento.
                     read_only=True,
-                    storage_adapter='chatterbot.storage.SQLStorageAdapter',
+                    # Los datos relacionados con las conversaciones se almacenarán en una base de datos SQL.
+                    storage_adapter='chatterbot.storage.SQLStorageAdapter', 
+                    # Indica la base de datos en la que se almacenará la información de las conversaciones.
+                    database_uri='sqlite:///chatterbot/database.sqlite3',
+                    # Los adaptadores lógicos determinan cómo se selecciona una respuesta ante una entrada.
                     logic_adapters=[
                         {
+                            # Adaptador lógico que devuelve una salida en base a la mayor coincidencia con una entrada conocida.
                             'import_path': 'chatterbot.logic.BestMatch',
+                            # Umbral de similitud con las frases introducidas.
                             'maximum_similarity_threshold': 0.80,
+                            # Respuesta por defecto cuando la entrada es desconocida.
                             'default_response': self.agent.defaultAnswer
                         }
-                    ],
-                    database_uri='sqlite:///database.sqlite3'
+                    ]
                 )
 
             # Cambiamos al estado INPUT en que averiguamos que quiere el usuario.
@@ -256,10 +274,10 @@ class ClassifierAgent(Agent):
             corpus = None
 
             # Comprobamos que exista el fichero con las noticias clsificadas.
-            if not exists('newsClassified.csv'):
+            if not exists('classifier/newsClassified.csv'):
 
                 # Creamos el fichero que contendrá las noticias clasificadas.
-                with open('newsClassified.csv', 'w') as csvFile:
+                with open('classifier/newsClassified.csv', 'w') as csvFile:
 
                     # Escribimos una primera fila a modo de cabecera.
                     csvWriter = csv.writer(csvFile)
@@ -278,18 +296,18 @@ class ClassifierAgent(Agent):
                                 csvWriter.writerow([file.read(), basename(directory)])
 
                 # Creamos un corpus, es decir, un conjunto de textos de diversas clases ordenados y clasificados. 
-                corpus = pd.read_csv("newsClassified.csv", encoding='utf-8')
+                corpus = pd.read_csv("classifier/newsClassified.csv", encoding='utf-8')
 
                 # Preprocesamos los textos de cada noticia.
                 corpus['lemmatizedNew'] = corpus['new'].map(preprocessing)
 
             # Comprobamos que existan los ficheros relacionados con el clasificador, si no, los generamos.
-            if not (exists("svm.pkl") and exists("labelEncoder.pkl") and exists("tFidfMatrixVector.pkl")):
+            if not (exists("classifier/svm.pkl") and exists("classifier/labelEncoder.pkl") and exists("classifier/tFidfMatrixVector.pkl")):
 
                 # Si queda alguno de ellos hay que eliminarlos para volver a generarlos.
-                if exists("svm.pkl"): remove("svm.pkl")
-                if exists("labelEncoder.pkl"): remove("labelEncoder.pkl")
-                if exists("tFidfMatrixVector.pkl"): remove("tFidfMatrixVector.pkl")
+                if exists("classifier/svm.pkl"): remove("classifier/svm.pkl")
+                if exists("classifier/labelEncoder.pkl"): remove("classifier/labelEncoder.pkl")
+                if exists("classifier/tFidfMatrixVector.pkl"): remove("classifier/tFidfMatrixVector.pkl")
 
                 # Otenemos para el texto de cada noticia su vector TF-IDF.
                 tfIdfMatrixVectors = TfidfVectorizer()
@@ -309,18 +327,18 @@ class ClassifierAgent(Agent):
                 svm.fit(trainValues, trainResults)
 
                 # Serializamos los objetos.
-                pickle.dump(svm, open('svm.pkl', 'wb'))
-                pickle.dump(labelEncoder, open('labelEncoder.pkl', 'wb'))
-                pickle.dump(tfIdfMatrixVectors, open('tFidfMatrixVector.pkl', 'wb'))
+                pickle.dump(svm, open('classifier/svm.pkl', 'wb'))
+                pickle.dump(labelEncoder, open('classifier/labelEncoder.pkl', 'wb'))
+                pickle.dump(tfIdfMatrixVectors, open('classifier/tFidfMatrixVector.pkl', 'wb'))
 
             # Cargar la máquina de vectores de soporte.
-            self.agent.svm = pickle.load(open('svm.pkl', 'rb'))
+            self.agent.svm = pickle.load(open('classifier/svm.pkl', 'rb'))
 
             # Cargamos el conversor de etiquetas.
-            self.agent.labelEncoder = pickle.load(open('labelEncoder.pkl', 'rb'))
+            self.agent.labelEncoder = pickle.load(open('classifier/labelEncoder.pkl', 'rb'))
 
             # Cargamos la matriz de vectores TF-IDF.
-            self.agent.tFidfMatrixVector = pickle.load(open('tFidfMatrixVector.pkl', 'rb'))
+            self.agent.tFidfMatrixVector = pickle.load(open('classifier/tFidfMatrixVector.pkl', 'rb'))
 
             # Una vez comfigurado todo pasamos al estado de recepción a la espera de noticias que clasificar.
             self.set_next_state("RECEIVE_STATE")
