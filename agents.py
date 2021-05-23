@@ -249,35 +249,26 @@ class ChatBotAgent(Agent):
 #******************************************************************************************************************************************
 #******************************************************************************************************************************************
 
-
-
-def preprocessing(textLine):
-    
-    '''
-    # Lemmatization: 
-    # Tokenization: Dividimos una frase en palabras.
-    # pos_tag devuele pares (<word>, <typeOfWord>), donde <typeOfWord> puede ser un nombre, un verbo un adjetivo, un advervio, etc ...
-    # Solo aceptaremos palabras puramente alfabéticas y que no sean stopwords, es decir, palabras que no tienen un significado por sí solas,
-    # suelen ser: artículos, pronombres, preposiciones y adverbios. Los buscadores obvian estas palabras.
-    '''
-
-    lemmatizedTextLine = ""
-    lemmatizer = WordNetLemmatizer()
-    
-    for word, tag in pos_tag(word_tokenize(textLine.lower())):
-        if word not in sw.words('english') and word.isalpha():
-            lemmatizedTextLine += lemmatizer.lemmatize(word) + " "
-        
-    return lemmatizedTextLine.rstrip()
-
-
-
 class ClassifierAgent(Agent):
 
-    def __init__(self, *args, **kwargs):
+    def preprocessing(self, textLine):
         
-        # Llamada a la super (Agent).
-        super().__init__(*args, **kwargs)
+        '''
+        # Lemmatization: 
+        # Tokenization: Dividimos una frase en palabras.
+        # pos_tag devuele pares (<word>, <typeOfWord>), donde <typeOfWord> puede ser un nombre, un verbo un adjetivo, un advervio, etc ...
+        # Solo aceptaremos palabras puramente alfabéticas y que no sean stopwords, es decir, palabras que no tienen un significado por sí solas,
+        # suelen ser: artículos, pronombres, preposiciones y adverbios. Los buscadores obvian estas palabras.
+        '''
+
+        lemmatizedTextLine = ""
+        lemmatizer = WordNetLemmatizer()
+        
+        for word, tag in pos_tag(word_tokenize(textLine.lower())):
+            if word not in sw.words('english') and word.isalpha():
+                lemmatizedTextLine += lemmatizer.lemmatize(word) + " "
+            
+        return lemmatizedTextLine.rstrip()
 
     # Esta clase interna sirve para definir el comportamiento del agente.
     class FsmBehaviour(FSMBehaviour):
@@ -317,7 +308,7 @@ class ClassifierAgent(Agent):
                 corpus = pd.read_csv("classifier/newsClassified.csv", encoding='utf-8')
 
                 # Preprocesamos los textos de cada noticia.
-                corpus['lemmatizedNew'] = corpus['new'].map(preprocessing)
+                corpus['lemmatizedNew'] = corpus['new'].map(self.agent.preprocessing)
 
             # Comprobamos que existan los ficheros relacionados con el clasificador, si no, los generamos.
             if not (exists("classifier/svm.pkl") and exists("classifier/labelEncoder.pkl") and exists("classifier/tFidfMatrixVector.pkl")):
@@ -371,7 +362,7 @@ class ClassifierAgent(Agent):
             
             # msg es un objeto o bien Message o bien None.
             if msg:
-                    
+                
                 # Comprobamos que la noticia esté en la carpeta.                
                 if exists(join("news", msg.body)):
 
@@ -385,7 +376,7 @@ class ClassifierAgent(Agent):
                         fileContent = file.read()
 
                     # Vamos a clasificar un nuevo texto ajeno a los textos para el entrenamiento y el testing.
-                    tfIdfVectorOfNewText = self.agent.tFidfMatrixVector.transform([preprocessing(fileContent)])
+                    tfIdfVectorOfNewText = self.agent.tFidfMatrixVector.transform([self.agent.preprocessing(fileContent)])
 
                     # Realizamos la predicción.
                     svmPrediction = self.agent.svm.predict(tfIdfVectorOfNewText)
@@ -460,7 +451,7 @@ class AnalyzerAgent(Agent):
             
             # msg es un objeto o bien Message o bien None.
             if msg:
-                    
+
                 # Comprobamos que la noticia esté en la carpeta.                
                 if exists(join("news", msg.body)):
 
@@ -504,7 +495,7 @@ class AnalyzerAgent(Agent):
                     # Print unique entity names
                     #print(set(entity_names))
 
-                    self.agent.lastAnalyze = set(entity_names)
+                    self.agent.lastAnalyze = str(set(entity_names))
 
                     #print(sorted(names.items(), key=lambda x:x[1], reverse=True))
 
@@ -520,7 +511,7 @@ class AnalyzerAgent(Agent):
 
         # Este método se llama después de ejecutarse on_start().
         async def run(self):
-            
+
             # Envía el mensaje.
             await self.send(msg=Message(to="dasi1@blabber.im", body=self.agent.lastAnalyze))
 
