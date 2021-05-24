@@ -1,7 +1,6 @@
 import csv
 import pickle
 import asyncio
-from chatterbot.utils import nltk_download_corpus
 import pandas as pd
 import controller as ctrl
 
@@ -21,6 +20,8 @@ from spade.behaviour import State
 from spade.behaviour import FSMBehaviour
 
 from nltk import pos_tag
+from nltk import sent_tokenize
+from nltk import ne_chunk_sents
 from nltk.corpus import stopwords as sw
 from nltk.stem import WordNetLemmatizer
 from nltk.tokenize import word_tokenize
@@ -29,8 +30,6 @@ from sklearn.svm import SVC
 from sklearn.preprocessing import LabelEncoder
 from sklearn.model_selection import train_test_split
 from sklearn.feature_extraction.text import TfidfVectorizer
-
-import nltk
 
 #******************************************************************************************************************************************
 #******************************************************************************************************************************************
@@ -48,6 +47,8 @@ class ChatBotAgent(Agent):
 
         # Texto a responder para clasificar.
         self.answerForClassification = "give me the new"
+
+        # Texto a responder para analizar.
         self.answerForAnalyze = "choose the new"
 
         # Texto a mostrar por defecto cuando no se entiende la entrada del usuario.
@@ -161,7 +162,7 @@ class ChatBotAgent(Agent):
             # Mientras no se detecte una entrada del usuario.
             while ChatBotAgent.getUserText() is None:
                 pass
-
+            
             # Recogemos la respuesta del chatBot.
             text = str(self.agent.chatBot.get_response(ChatBotAgent.getUserText()))
 
@@ -251,7 +252,7 @@ class ChatBotAgent(Agent):
 
 class ClassifierAgent(Agent):
 
-    def preprocessing(self, textLine):
+    def preprocessing(self, text):
         
         '''
         # Lemmatization: 
@@ -261,14 +262,14 @@ class ClassifierAgent(Agent):
         # suelen ser: artículos, pronombres, preposiciones y adverbios. Los buscadores obvian estas palabras.
         '''
 
-        lemmatizedTextLine = ""
+        lemmatizedText = ""
         lemmatizer = WordNetLemmatizer()
         
-        for word, tag in pos_tag(word_tokenize(textLine.lower())):
+        for word, tag in pos_tag(word_tokenize(text.lower())):
             if word not in sw.words('english') and word.isalpha():
-                lemmatizedTextLine += lemmatizer.lemmatize(word) + " "
+                lemmatizedText += lemmatizer.lemmatize(word) + " "
             
-        return lemmatizedTextLine.rstrip()
+        return lemmatizedText.rstrip()
 
     # Esta clase interna sirve para definir el comportamiento del agente.
     class FsmBehaviour(FSMBehaviour):
@@ -432,11 +433,6 @@ class ClassifierAgent(Agent):
 
 class AnalyzerAgent(Agent):
 
-    def __init__(self, *args, **kwargs):
-        
-        # Llamada a la super (Agent).
-        super().__init__(*args, **kwargs)
-
     # Esta clase interna sirve para definir el comportamiento del agente.
     class FsmBehaviour(FSMBehaviour):
         pass
@@ -445,7 +441,7 @@ class AnalyzerAgent(Agent):
 
         # Este método se llama después de ejecutarse on_start().
         async def run(self):
-
+            
             # Espera como mucho N segundos para recibir algún mensaje.
             msg = await self.receive(timeout=3600)
             
@@ -464,10 +460,10 @@ class AnalyzerAgent(Agent):
                         # Obtenemos el contenido del fichero.
                         fileContent = file.read()
 
-                    sentences = nltk.sent_tokenize(fileContent)
-                    tokenized_sentences = [nltk.word_tokenize(sentence) for sentence in sentences]
-                    tagged_sentences = [nltk.pos_tag(sentence) for sentence in tokenized_sentences]
-                    chunked_sentences = nltk.ne_chunk_sents(tagged_sentences, binary=True)
+                    sentences = sent_tokenize(fileContent)
+                    tokenized_sentences = [word_tokenize(sentence) for sentence in sentences]
+                    tagged_sentences = [pos_tag(sentence) for sentence in tokenized_sentences]
+                    chunked_sentences = ne_chunk_sents(tagged_sentences, binary=True)
 
                     def extract_entity_names(t):
                         entity_names = []

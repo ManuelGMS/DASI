@@ -38,7 +38,7 @@ class Window(Tk):
 # **********************************************************************************************************************
 
 # Clase "interfaz" para GUI's.
-class GUI:
+class GUI(Frame):
     # Método para actualizar la interfaz de usuario. 
     def update(self, context):
         pass
@@ -61,7 +61,7 @@ class GuiChat(GUI):
 # **********************************************************************************************************************
 
 # Clase implementación de una interfaz gráfica de usuario.
-class GuiChatImp(Frame, GuiChat):
+class GuiChatImp(GuiChat):
    
     def __init__(self, parent, closeWindow):
     

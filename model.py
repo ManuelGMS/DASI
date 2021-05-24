@@ -17,25 +17,25 @@ class Model:
     def loadAgents(self):
 
         # Instanciamos el agente Clasificador.
-        self.analyzerAgent = AnalyzerAgent("dasi3@blabber.im", "dasiproject3")
+        self.__analyzerAgent = AnalyzerAgent("dasi3@blabber.im", "dasiproject3")
         # Indicamos al agente que comience (setup).
-        future = self.analyzerAgent.start()
+        future = self.__analyzerAgent.start()
         # Esperamos a la inicialización completa del agente.
         future.result()
 
         # Instanciamos el agente Clasificador.
-        self.classifierAgent = ClassifierAgent("dasi2@blabber.im", "dasiproject2")
+        self.__classifierAgent = ClassifierAgent("dasi2@blabber.im", "dasiproject2")
         # Indicamos al agente que comience (setup).
-        future = self.classifierAgent.start()
+        future = self.__classifierAgent.start()
         # Esperamos a la inicialización completa del agente.
         future.result()   
 
         # Instanciamos el agente ChatBot.
-        self.chatBotAgent = ChatBotAgent("dasi1@blabber.im", "dasiproject1")
+        self.__chatBotAgent = ChatBotAgent("dasi1@blabber.im", "dasiproject1")
         # Indicamos al agente que comience (setup).
-        self.chatBotAgent.start()
+        self.__chatBotAgent.start()
         
     def sendUserInputToChatBotAgent(self, text):
         
         # Pasamos el texto de entrada al agente del ChatBot.
-        self.chatBotAgent.setUserText(text)
+        self.__chatBotAgent.setUserText(text)
