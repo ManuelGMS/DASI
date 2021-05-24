@@ -16,7 +16,7 @@ class Model:
 
     def loadAgents(self):
 
-        # Instanciamos el agente Clasificador.
+        # Instanciamos el agente Analizador.
         self.__analyzerAgent = AnalyzerAgent("dasi3@blabber.im", "dasiproject3")
         # Indicamos al agente que comience (setup).
         future = self.__analyzerAgent.start()
