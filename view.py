@@ -74,14 +74,15 @@ class GuiChatImp(GuiChat):
         self.grid_columnconfigure(0, weight=1)    
         
         self.txtInfo = ScrolledText(self, font=("Arial Bold", 14))
-        self.txtInfo.grid(row=0, column=0, padx=10, pady=10)
+        self.txtInfo.grid(row=0, column=0, columnspan=2, padx=10, pady=10)
         self.txtInfo.configure(state='disabled')
 
         self.etrInput = Entry(self, font=("Arial Bold", 20), justify='center')        
         self.etrInput.grid(row=1, column=0, padx=10, pady=10, sticky=W+E)
 
         self.btnEnviar = Button(self, text="SEND", font=("Arial Bold", 20), command=lambda : self.__send())
-        self.btnEnviar.grid(row=2, column=0, padx=10, pady=10, sticky=W+E)
+        self.btnEnviar.grid(row=1, column=1, padx=10, pady=10, sticky=W+E)
+        self.btnEnviar.bind('<Return>', lambda event : self.__send())
 
     def __send(self):
 
