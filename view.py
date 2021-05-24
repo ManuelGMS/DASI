@@ -18,20 +18,22 @@ class Window(Tk):
         self.geometry('800x480')
         self.configure(bg='white')
         self.resizable(width=False, height=False)
-
+        self.protocol("WM_DELETE_WINDOW", lambda: self.closeWindow())
+        
         self.frames = {}
         self.mainContainer = Frame(self)
         self.mainContainer.grid_rowconfigure(0, weight=1)
         self.mainContainer.grid_columnconfigure(0, weight=1)
         self.mainContainer.pack(side="top", fill="both", expand = True)
 
-        self.frames[GuiChat] = GuiChat.getInstance(self.mainContainer, self.closeWindow)
+        self.frames[GuiChat] = GuiChat.getInstance(self.mainContainer)
         self.frames[GuiChat].tkraise()
         
     def closeWindow(self):
 
+        quit_spade()
         self.destroy()
-
+        
 # **********************************************************************************************************************
 # **********************************************************************************************************************
 # **********************************************************************************************************************
@@ -49,10 +51,10 @@ class GuiChat(GUI):
     __instance = None
 
     @staticmethod
-    def getInstance(parent=None, closeWindowMethod=None):
+    def getInstance(parent=None):
 
         if GuiChat.__instance is None:
-            GuiChat.__instance = GuiChatImp(parent, closeWindowMethod)
+            GuiChat.__instance = GuiChatImp(parent)
 
         return GuiChat.__instance
 
@@ -63,11 +65,9 @@ class GuiChat(GUI):
 # Clase implementación de una interfaz gráfica de usuario.
 class GuiChatImp(GuiChat):
    
-    def __init__(self, parent, closeWindow):
+    def __init__(self, parent):
     
         Frame.__init__(self, parent)
-
-        self.closeWindow = closeWindow
 
         self.grid(row=0, column=0, sticky="nsew")
         self.grid_rowconfigure(0, weight=1)
@@ -83,9 +83,6 @@ class GuiChatImp(GuiChat):
         self.btnEnviar = Button(self, text="SEND", font=("Arial Bold", 20), command=lambda : self.__send())
         self.btnEnviar.grid(row=2, column=0, padx=10, pady=10, sticky=W+E)
 
-        self.btnSalir = Button(self, text="EXIT", font=("Arial Bold", 20), command=lambda : self.__close())
-        self.btnSalir.grid(row=3, column=0, padx=10, pady=10, sticky=W+E)
-
     def __send(self):
 
         if str(self.etrInput.get()).strip() != "":
@@ -99,11 +96,6 @@ class GuiChatImp(GuiChat):
             self.txtInfo.configure(state='disabled')
 
             ctrl.Controller.getInstance().action({ 'event': 'HUMAN_INPUT', 'object': str(text).lower() })
-
-    def __close(self):
-
-        quit_spade()
-        self.closeWindow()
 
     def update(self, context):
 
