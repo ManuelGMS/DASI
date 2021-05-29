@@ -37,6 +37,10 @@ sys.stderr = sys.__stderr__
 class ChatBotAgent(Agent):
 
     __textFromGui = None
+    __auxAnalizer = {
+        "new": "",
+        "type": ""
+    }
 
     def __init__(self, *args, **kwargs):
 
@@ -59,6 +63,14 @@ class ChatBotAgent(Agent):
     @staticmethod
     def getUserText():
         return ChatBotAgent.__textFromGui
+
+    @staticmethod
+    def setAnalyzerData(text, tipo):
+        ChatBotAgent.__auxAnalizer[tipo] = text
+        
+    @staticmethod
+    def getAnalyzerData():
+        return ChatBotAgent.__auxAnalizer
 
     # Esta clase interna sirve para definir el comportamiento del agente.
     class FsmBehaviour(FSMBehaviour):
@@ -149,7 +161,7 @@ class ChatBotAgent(Agent):
                 self.set_next_state("SEND_STATE")
             elif text == self.agent.answerForAnalyze:
                 self.agent.classifyOrAnalyze = False
-                self.set_next_state("SEND_STATE")
+                self.set_next_state("MID_STATE")
             else:
                 self.set_next_state("INPUT_STATE")
             
@@ -163,7 +175,14 @@ class ChatBotAgent(Agent):
                 pass
 
             # Envía el mensaje.
-            await self.send(msg=Message(to="dasi2@blabber.im" if self.agent.classifyOrAnalyze else "dasi3@blabber.im", body=ChatBotAgent.getUserText()))
+            #await self.send(msg=Message(to="dasi2@blabber.im" if self.agent.classifyOrAnalyze else "dasi3@blabber.im", body=ChatBotAgent.getUserText()))
+            if self.agent.classifyOrAnalyze:
+                await self.send(msg=Message(to="dasi2@blabber.im", body=ChatBotAgent.getUserText()))
+            else:
+                # Añadimos la categoria a analizar
+                ChatBotAgent.setAnalyzerData(ChatBotAgent.getUserText(), "type")
+                cuerpo = json.dumps(ChatBotAgent.getAnalyzerData())
+                await self.send(msg=Message(to="dasi3@blabber.im", body=cuerpo))
 
             # Si no se introduce un poco de retardo, el envío podría no completarse.
             await sleep(0.2)
@@ -191,6 +210,31 @@ class ChatBotAgent(Agent):
             # Volvemos al estado inicial para saber que quiere el usuario.
             self.set_next_state("INPUT_STATE")
 
+    class midState(State):
+
+        # Este método se llama después de ejecutarse on_start().
+        async def run(self):
+
+            # Mientras no se detecte una entrada del usuario.
+            while ChatBotAgent.getUserText() is None:
+                pass
+
+            # Guardamos la noticia.         
+            #ChatBotAgent.__dictAnalyze["new"] = ChatBotAgent.getUserText()
+            ChatBotAgent.setAnalyzerData(ChatBotAgent.getUserText(), "new")
+
+            # Si no se introduce un poco de retardo, el envío podría no completarse.
+            await sleep(0.2)
+
+            # Volvemos a dejar el texto en None para que vuelva a quedarse esperando en el bucle.
+            ChatBotAgent.setUserText(None)
+
+            # Pedimos al usuario que introduzca la categoria que quiere analizar
+            ctrl.Controller.getInstance().action({'event': 'BOT_ANSWER', 'object': "bot > What do you want to know? \nChoose one or more: Organization, Person, Location, Date, Time, Money, Percent, Facility or GPE"})
+
+            # Pasamos al estado de escucha para que el agente de clasificación nos pueda devolver el tipo de noticia.
+            self.set_next_state("SEND_STATE")
+
     # Este método se llama cuando se inicializa el agente.
     async def setup(self):
         
@@ -202,11 +246,14 @@ class ChatBotAgent(Agent):
         fsm.add_state(name="INPUT_STATE", state=self.inputState())
         fsm.add_state(name="SEND_STATE", state=self.sendState())
         fsm.add_state(name="RECEIVE_STATE", state=self.receiveState())
+        fsm.add_state(name="MID_STATE", state=self.midState())
 
         # Declaramos las posibles transiciones entre estados.
         fsm.add_transition(source="INIT_STATE", dest="INPUT_STATE")
         fsm.add_transition(source="INPUT_STATE", dest="INPUT_STATE")
         fsm.add_transition(source="INPUT_STATE", dest="SEND_STATE")
+        fsm.add_transition(source="INPUT_STATE", dest="MID_STATE")
+        fsm.add_transition(source="MID_STATE", dest="SEND_STATE")
         fsm.add_transition(source="SEND_STATE", dest="RECEIVE_STATE")
         fsm.add_transition(source="RECEIVE_STATE", dest="INPUT_STATE")
 

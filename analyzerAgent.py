@@ -9,10 +9,13 @@ from spade.template import Template
 from spade.behaviour import State
 from spade.behaviour import FSMBehaviour
 
-from nltk import pos_tag
 from nltk import sent_tokenize
 from nltk import ne_chunk_sents
 from nltk.tokenize import word_tokenize
+from nltk import word_tokenize, pos_tag, ne_chunk
+from nltk import Tree
+
+import json
 
 
 
@@ -32,19 +35,53 @@ class AnalyzerAgent(Agent):
             
             # msg es un objeto o bien Message o bien None.
             if msg:
+                # Volvemos a crear el diccionario
+                dictdictAux = json.loads(msg.body)
 
                 # Comprobamos que la noticia esté en la carpeta.                
-                if exists(join("news", msg.body)):
+                if exists(join("news", dictdictAux["new"])):
 
                     # Aquí volcaremos el contenido del fichero.
                     fileContent = None
 
                     # Leemos el contenido del fichero.
-                    with open(join("news", msg.body), 'r') as file:
+                    with open(join("news", dictdictAux["new"]), 'r') as file:
 
                         # Obtenemos el contenido del fichero.
                         fileContent = file.read()
+                    
+                    def get_continuous_chunks(text, label):
+                        chunked = ne_chunk(pos_tag(word_tokenize(text)))
+                        prev = None
+                        continuous_chunk = []
+                        current_chunk = []
 
+                        for subtree in chunked:
+                            if type(subtree) == Tree and subtree.label() == label:
+                                current_chunk.append(" ".join([token for token, pos in subtree.leaves()]))
+                            if current_chunk:
+                                named_entity = " ".join(current_chunk)
+                                if named_entity not in continuous_chunk:
+                                    continuous_chunk.append(named_entity)
+                                    current_chunk = []
+                            else:
+                                continue
+
+                        return continuous_chunk
+
+                    # Para una categoria
+                    category = dictdictAux["type"]
+                    valores = {}
+                    for cate in category.split():
+                        valores[cate] = get_continuous_chunks(fileContent, cate.upper())
+
+                    if valores == []:
+                        self.agent.lastAnalyze = "Can't find that category on the new"
+                    else:
+                        self.agent.lastAnalyze = str(valores)
+
+
+                    """
                     sentences = sent_tokenize(fileContent)
                     tokenized_sentences = [word_tokenize(sentence) for sentence in sentences]
                     tagged_sentences = [pos_tag(sentence) for sentence in tokenized_sentences]
@@ -79,6 +116,7 @@ class AnalyzerAgent(Agent):
                     self.agent.lastAnalyze = str(set(entity_names))
 
                     #print(sorted(names.items(), key=lambda x:x[1], reverse=True))
+                    """
 
                 else:
 
