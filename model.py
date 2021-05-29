@@ -1,6 +1,6 @@
-from agents import ChatBotAgent
-from agents import AnalyzerAgent
-from agents import ClassifierAgent
+from chatBotAgent import ChatBotAgent
+from analyzerAgent import AnalyzerAgent
+from classifierAgent import ClassifierAgent
 
 class Model:
     
