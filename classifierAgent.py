@@ -1,7 +1,9 @@
 import csv
-import pickle
 import asyncio
 import pandas as pd
+
+from pickle import dump
+from pickle import load
 
 from os import walk
 from os import remove
@@ -114,18 +116,18 @@ class ClassifierAgent(Agent):
                 svm.fit(trainValues, trainResults)
 
                 # Serializamos los objetos.
-                pickle.dump(svm, open('classifier/svm.pkl', 'wb'))
-                pickle.dump(labelEncoder, open('classifier/labelEncoder.pkl', 'wb'))
-                pickle.dump(tfIdfMatrixVectors, open('classifier/tFidfMatrixVector.pkl', 'wb'))
+                dump(svm, open('classifier/svm.pkl', 'wb'))
+                dump(labelEncoder, open('classifier/labelEncoder.pkl', 'wb'))
+                dump(tfIdfMatrixVectors, open('classifier/tFidfMatrixVector.pkl', 'wb'))
 
             # Cargar la máquina de vectores de soporte.
-            self.agent.svm = pickle.load(open('classifier/svm.pkl', 'rb'))
+            self.agent.svm = load(open('classifier/svm.pkl', 'rb'))
 
             # Cargamos el conversor de etiquetas.
-            self.agent.labelEncoder = pickle.load(open('classifier/labelEncoder.pkl', 'rb'))
+            self.agent.labelEncoder = load(open('classifier/labelEncoder.pkl', 'rb'))
 
             # Cargamos la matriz de vectores TF-IDF.
-            self.agent.tFidfMatrixVector = pickle.load(open('classifier/tFidfMatrixVector.pkl', 'rb'))
+            self.agent.tFidfMatrixVector = load(open('classifier/tFidfMatrixVector.pkl', 'rb'))
 
             # Una vez comfigurado todo pasamos al estado de recepción a la espera de noticias que clasificar.
             self.set_next_state("RECEIVE_STATE")

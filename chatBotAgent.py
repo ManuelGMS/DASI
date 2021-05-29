@@ -2,11 +2,14 @@ import controller as ctrl
 
 from asyncio import sleep
 
+from pickle import dumps
+from pickle import loads
+
 from os import remove
 from os.path import exists
 
 from chatterbot import ChatBot
-from chatterbot.trainers import ListTrainer
+from chatterbot.trainers import ChatterBotCorpusTrainer
 
 from spade.agent import Agent
 from spade.message import Message
@@ -14,6 +17,21 @@ from spade.template import Template
 from spade.behaviour import State
 from spade.behaviour import FSMBehaviour
 
+'''
+import sys
+from os import devnull
+from contextlib import redirect_stdout
+
+# with redirect_stdout(open(devnull, "w")):
+
+# Disable
+sys.stdout = open(devnull, 'w')
+sys.stderr = open(devnull, "w")
+
+# Restore
+sys.stdout = sys.__stdout__
+sys.stderr = sys.__stderr__
+'''
 
 
 class ChatBotAgent(Agent):
@@ -30,9 +48,6 @@ class ChatBotAgent(Agent):
 
         # Texto a responder para analizar.
         self.answerForAnalyze = "choose the new"
-
-        # Texto a mostrar por defecto cuando no se entiende la entrada del usuario.
-        self.defaultAnswer = "I'm sorry, but I don't understand."
 
         # True == Classify, False == Analyze
         self.classifyOrAnalyze = None
@@ -54,82 +69,55 @@ class ChatBotAgent(Agent):
         # Este método se llama después de ejecutarse on_start().
         async def run(self):
 
-            # Comprobamos que existen ambos ficheros, de lo contrario hay que realizar el entrenamiento.
-            if not (exists("chatterbot/database.sqlite3") and exists("sentence_tokenizer.pickle")):
+            # Para comprobar si hay que reentrenar al ChatBot.
+            trainingNeeded = False
 
-                # Si queda alguno de ellos hay que eliminarlos para volver a generarlos.
-                if exists("chatterbot/database.sqlite3"): remove("database.sqlite3")
-                if exists("sentence_tokenizer.pickle"): remove("sentence_tokenizer.pickle")
+            # Si no existe el fichero ... hay que realizar el entrenamiento.
+            if not exists("chatterbot/database.sqlite3"):
+                trainingNeeded = True
+    
+            # Cargamos el ChatBot en el agente.
+            self.agent.chatBot = ChatBot(
+                # Nombre del ChatBot.
+                name='ChatBot',
+                # Evita que el bot aprenda de las conversaciones que tienen lugar después del entrenamiento.
+                read_only=True,
+                # Los datos relacionados con las conversaciones se almacenarán en una base de datos SQL.
+                storage_adapter='chatterbot.storage.SQLStorageAdapter', 
+                # Indica la base de datos en la que se almacenará la información de las conversaciones.
+                database_uri='sqlite:///chatterbot/database.sqlite3',
+                # Los preprocesadores son funciones que modifican la entrada que recibe el bot antes de que esta sea procesada por un adaptador lógico.
+                preprocessors=[
+                    # Elimina espacios en blanco adicionales que son innecesarios.
+                    'chatterbot.preprocessors.clean_whitespace'
+                ],
+                # Los adaptadores lógicos determinan cómo se selecciona una respuesta ante una entrada.
+                logic_adapters=[
+                    {
+                        # Adaptador lógico que devuelve una salida en base a la mayor coincidencia con una entrada conocida.
+                        'import_path': 'chatterbot.logic.BestMatch',
+                        # Establecemos como método para comparación de frases la Distancia de Levenshtein.
+                        "statement_comparison_function": 'chatterbot.comparisons.levenshtein_distance',
+                        # Umbral de similitud con las frases introducidas.
+                        'maximum_similarity_threshold': 0.75,
+                        # Respuesta por defecto cuando la entrada es desconocida.
+                        'default_response': "I'm sorry, but I don't understand."
+                    }
+                ]
+            )
 
-                # Instanciamos un chatBot.
-                self.agent.chatBot = ChatBot(
-                    silence_performance_warning=True,
-                    # Nombre del ChatBot.
-                    name='ChatBot',
-                    # Evita que el bot aprenda de las conversaciones que tienen lugar después del entrenamiento.
-                    read_only=True,
-                    # Los datos relacionados con las conversaciones se almacenarán en una base de datos SQL.
-                    storage_adapter='chatterbot.storage.SQLStorageAdapter', 
-                    # Indica la base de datos en la que se almacenará la información de las conversaciones.
-                    database_uri='sqlite:///chatterbot/database.sqlite3',
-                    # Los adaptadores lógicos determinan cómo se selecciona una respuesta ante una entrada.
-                    logic_adapters=[
-                        {
-                            # Adaptador lógico que devuelve una salida en base a la mayor coincidencia con una entrada conocida.
-                            'import_path': 'chatterbot.logic.BestMatch',
-                            # Umbral de similitud con las frases introducidas.
-                            'maximum_similarity_threshold': 0.80,
-                            # Respuesta por defecto cuando la entrada es desconocida.
-                            'default_response': self.agent.defaultAnswer
-                        }
-                    ]
-                )
+            # Comprobamos si hace falta reentrenar al ChatBot.
+            if trainingNeeded:
 
-                # Grafos de las conversaciones.
-                dialogs = (
-                    ['classify', self.agent.answerForClassification],
-                    ['classify new', self.agent.answerForClassification],
-                    ['classify that', self.agent.answerForClassification],
-                    ['classify this', self.agent.answerForClassification],
-                    ['i want you to classify this new', self.agent.answerForClassification],
-                    ['analyze', self.agent.answerForAnalyze],
-                    ['analyze new', self.agent.answerForAnalyze],
-                    ['analyze that', self.agent.answerForAnalyze],
-                    ['analyze this', self.agent.answerForAnalyze],
-                    ['i want you to analyze this new', self.agent.answerForAnalyze]
-                )
+                # Objeto para entrenar al bot con nuestro propio corpus.
+                trainer = ChatterBotCorpusTrainer(self.agent.chatBot)
 
-                # Objeto para entrenar al bot con las conversaciones definidas.
-                trainer = ListTrainer(self.agent.chatBot)
+                # Indicamos la ruta en la que se encuentra el corpus.
+                trainer.train('./chatterbot/corpus.json')
 
-                # Entrenamos al bot con las conversaciones definidas.
-                for dialog in dialogs:
-                    trainer.train(dialog)
-
-            else:
-
-                # Instanciamos un chatBot.
-                self.agent.chatBot = ChatBot(
-                    # Nombre del ChatBot.
-                    name='ChatBot',
-                    # Evita que el bot aprenda de las conversaciones que tienen lugar después del entrenamiento.
-                    read_only=True,
-                    # Los datos relacionados con las conversaciones se almacenarán en una base de datos SQL.
-                    storage_adapter='chatterbot.storage.SQLStorageAdapter', 
-                    # Indica la base de datos en la que se almacenará la información de las conversaciones.
-                    database_uri='sqlite:///chatterbot/database.sqlite3',
-                    # Los adaptadores lógicos determinan cómo se selecciona una respuesta ante una entrada.
-                    logic_adapters=[
-                        {
-                            # Adaptador lógico que devuelve una salida en base a la mayor coincidencia con una entrada conocida.
-                            'import_path': 'chatterbot.logic.BestMatch',
-                            # Umbral de similitud con las frases introducidas.
-                            'maximum_similarity_threshold': 0.80,
-                            # Respuesta por defecto cuando la entrada es desconocida.
-                            'default_response': self.agent.defaultAnswer
-                        }
-                    ]
-                )
+                # Eliminamos el fichero.
+                if exists("sentence_tokenizer.pickle"):
+                    remove("sentence_tokenizer.pickle")
 
             # Cambiamos al estado INPUT en que averiguamos que quiere el usuario.
             self.set_next_state("INPUT_STATE")
