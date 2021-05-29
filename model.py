@@ -14,6 +14,7 @@ class Model:
         
         return Model.__instance
 
+    # Este método carga los agentes cuando se inicia la aplicación.
     def loadAgents(self):
 
         # Instanciamos el agente Analizador.
@@ -34,7 +35,8 @@ class Model:
         self.__chatBotAgent = ChatBotAgent("dasi1@blabber.im", "dasiproject1")
         # Indicamos al agente que comience (setup).
         self.__chatBotAgent.start()
-        
+
+    # Este método permite comunicarnos con el agente ChatBot.        
     def sendUserInputToChatBotAgent(self, text):
         
         # Pasamos el texto de entrada al agente del ChatBot.

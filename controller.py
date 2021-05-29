@@ -13,6 +13,7 @@ class Controller:
 
         return Controller.__instance
 
+    # Este método gestiona los eventos de la aplicación.
     def action(self, context):
 
         if context["event"] == "INITALIZE":
@@ -26,3 +27,4 @@ class Controller:
         elif context["event"] == "BOT_ANSWER":
 
             view.GuiChat.getInstance().update({ 'event': 'UPDATE_CHAT' , 'object': context["object"] })
+            

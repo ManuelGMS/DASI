@@ -17,8 +17,10 @@ from tkinter.scrolledtext import ScrolledText
 # **********************************************************************************************************************
 # **********************************************************************************************************************
 
+# Clase que representa la ventana de la aplicación.
 class Window(Tk):
 
+    # Inicializamos las propiedades de la ventana.
     def __init__(self, *args, **kwargs):
         
         Tk.__init__(self, *args, **kwargs)
@@ -37,7 +39,8 @@ class Window(Tk):
 
         self.frames[GuiChat] = GuiChat.getInstance(self.mainContainer)
         self.frames[GuiChat].tkraise()
-        
+    
+    # Este método se llama al pulsarse el aspa de cierre de la ventana.
     def closeWindow(self):
 
         quit_spade()
@@ -74,6 +77,7 @@ class GuiChat(GUI):
 # Clase implementación de una interfaz gráfica de usuario.
 class GuiChatImp(GuiChat):
    
+    # Inicializamos los elementos de la GUI en el contructor.
     def __init__(self, parent):
     
         Frame.__init__(self, parent)
@@ -94,7 +98,8 @@ class GuiChatImp(GuiChat):
         self.btnEnviar = Button(self, text="SEND", font=("Arial Bold", 20), command=lambda : self.__send())
         self.btnEnviar.grid(row=1, column=1, padx=10, pady=10, sticky=W+E)
         self.btnEnviar.bind('<Return>', lambda event : self.__send())
-        
+    
+    # Este método se llama al ser pulsado el botón SEND, obtiene el texto de la GUI y lo pasa al controlador.
     def __send(self):
 
         if str(self.etrInput.get()).strip() != "":
@@ -109,6 +114,7 @@ class GuiChatImp(GuiChat):
 
             ctrl.Controller.getInstance().action({ 'event': 'HUMAN_INPUT', 'object': str(text).lower() })
 
+    # Método para actualizar la interfaz de usuario.
     def update(self, context):
 
         if context["event"] == "UPDATE_CHAT":
