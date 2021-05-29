@@ -1,6 +1,15 @@
-from tkinter import *
-from spade import quit_spade
 import controller as ctrl
+
+from spade import quit_spade
+
+from tkinter import W
+from tkinter import E
+from tkinter import Tk
+from tkinter import END
+from tkinter import Frame
+from tkinter import Entry
+from tkinter import Button
+from tkinter import INSERT
 from tkinter.scrolledtext import ScrolledText
 
 # **********************************************************************************************************************

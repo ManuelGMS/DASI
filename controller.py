@@ -1,5 +1,5 @@
 import view
-from model import Model
+import model
 
 class Controller:
 
@@ -17,11 +17,11 @@ class Controller:
 
         if context["event"] == "INITALIZE":
 
-            Model.getInstance().loadAgents()
+            model.Model.getInstance().loadAgents()
 
         elif context["event"] == "HUMAN_INPUT":
 
-            Model.getInstance().sendUserInputToChatBotAgent(context["object"])
+            model.Model.getInstance().sendUserInputToChatBotAgent(context["object"])
 
         elif context["event"] == "BOT_ANSWER":
 

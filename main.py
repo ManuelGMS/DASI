@@ -1,8 +1,8 @@
-from view import Window
-from controller import Controller
+import view
+import controller as ctrl
 
 # Carga todos los datos necesarios antes de ejecutar la aplicación.
-Controller.getInstance().action({"event": "INITALIZE", "object": None})
+ctrl.Controller.getInstance().action({"event": "INITALIZE", "object": None})
 
 # Ejecuta a aplicación.
-Window().mainloop()
+view.Window().mainloop()
