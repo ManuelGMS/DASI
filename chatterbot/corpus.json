@@ -1,0 +1,27 @@
+{
+  
+  "conversations": [
+    
+    ["classify", "give me the new"], 
+    ["classify news", "give me the new"], 
+    ["classify that news", "give me the new"], 
+    ["classify this news", "give me the new"], 
+    ["i have a news to classify", "give me the new"], 
+    ["i want you to classify this news", "give me the new"], 
+    ["i would like you to classify a news", "give me the new"], 
+    ["i would like to know what type of news is this", "give me the new"], 
+    ["i want to know what type of news is this", "give me the new"], 
+    ["please classify", "give me the new"], 
+    ["please classify this news", "give me the new"], 
+    ["could you please classify this news", "give me the new"], 
+    ["what type of news is this?", "give me the new"], 
+    
+    ["analyze", "choose the new"], 
+    ["analyze new", "choose the new"], 
+    ["analyze that", "choose the new"], 
+    ["analyze this", "choose the new"], 
+    ["i want you to analyze this new", "choose the new"]
+    
+  ]
+
+}

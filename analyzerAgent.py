@@ -1,3 +1,5 @@
+from json import loads
+
 from asyncio import sleep
 
 from os.path import join
@@ -9,13 +11,9 @@ from spade.template import Template
 from spade.behaviour import State
 from spade.behaviour import FSMBehaviour
 
-from nltk import sent_tokenize
-from nltk import ne_chunk_sents
+from nltk import Tree
 from nltk.tokenize import word_tokenize
 from nltk import word_tokenize, pos_tag, ne_chunk
-from nltk import Tree
-
-import json
 
 
 
@@ -36,7 +34,7 @@ class AnalyzerAgent(Agent):
             # msg es un objeto o bien Message o bien None.
             if msg:
                 # Volvemos a crear el diccionario
-                dictdictAux = json.loads(msg.body)
+                dictdictAux = loads(msg.body)
 
                 # Comprobamos que la noticia esté en la carpeta.                
                 if exists(join("news", dictdictAux["new"])):

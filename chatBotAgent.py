@@ -1,12 +1,14 @@
 import controller as ctrl
 
+from json import dumps
+
 from asyncio import sleep
 
-from pickle import dumps
-from pickle import loads
-
 from os import remove
+from os import devnull
 from os.path import exists
+
+from contextlib import redirect_stdout
 
 from chatterbot import ChatBot
 from chatterbot.trainers import ChatterBotCorpusTrainer
@@ -17,31 +19,18 @@ from spade.template import Template
 from spade.behaviour import State
 from spade.behaviour import FSMBehaviour
 
-'''
-import sys
-from os import devnull
-from contextlib import redirect_stdout
-
-# with redirect_stdout(open(devnull, "w")):
-
-# Disable
-sys.stdout = open(devnull, 'w')
-sys.stderr = open(devnull, "w")
-
-# Restore
-sys.stdout = sys.__stdout__
-sys.stderr = sys.__stderr__
-'''
 
 
 class ChatBotAgent(Agent):
 
-    __textFromGui = None
     __auxAnalizer = {
         "new": "",
         "type": ""
     }
 
+    # Para almacenar el texto que llega de la GUI.
+    __textFromGui = None
+    
     def __init__(self, *args, **kwargs):
 
         # Llamada a la super (Agent).
@@ -56,10 +45,12 @@ class ChatBotAgent(Agent):
         # True == Classify, False == Analyze
         self.classifyOrAnalyze = None
 
+    # Establece el último texto que llegó de la GUI.
     @staticmethod
     def setUserText(text):
         ChatBotAgent.__textFromGui = text
         
+    # Obtiene el último texto que llegó de la GUI.
     @staticmethod
     def getUserText():
         return ChatBotAgent.__textFromGui
@@ -76,6 +67,7 @@ class ChatBotAgent(Agent):
     class FsmBehaviour(FSMBehaviour):
         pass
 
+    # Estado de la FSM.
     class initState(State):
 
         # Este método se llama después de ejecutarse on_start().
@@ -111,7 +103,7 @@ class ChatBotAgent(Agent):
                         # Establecemos como método para comparación de frases la Distancia de Levenshtein.
                         "statement_comparison_function": 'chatterbot.comparisons.levenshtein_distance',
                         # Umbral de similitud con las frases introducidas.
-                        'maximum_similarity_threshold': 0.75,
+                        'maximum_similarity_threshold': 0.90,
                         # Respuesta por defecto cuando la entrada es desconocida.
                         'default_response': "I'm sorry, but I don't understand."
                     }
@@ -124,8 +116,9 @@ class ChatBotAgent(Agent):
                 # Objeto para entrenar al bot con nuestro propio corpus.
                 trainer = ChatterBotCorpusTrainer(self.agent.chatBot)
 
-                # Indicamos la ruta en la que se encuentra el corpus.
-                trainer.train('./chatterbot/corpus.json')
+                # Indicamos la ruta en la que se encuentra el corpus y realizamos un entrenamiento silencioso.
+                with redirect_stdout(open(devnull, "w")):
+                    trainer.train('./chatterbot/corpus.json')
 
                 # Eliminamos el fichero.
                 if exists("sentence_tokenizer.pickle"):
@@ -134,6 +127,7 @@ class ChatBotAgent(Agent):
             # Cambiamos al estado INPUT en que averiguamos que quiere el usuario.
             self.set_next_state("INPUT_STATE")
 
+    # Estado de la FSM.
     class inputState(State):
 
         # Este método se llama después de ejecutarse on_start().
@@ -155,7 +149,7 @@ class ChatBotAgent(Agent):
             # Classify -> True ; Analyze -> False
             self.agent.classifyOrAnalyze = None
 
-            # Pasamos a clasificar o ciclamos en el estado.
+            # Analizamos la respuesta del ChatBot y en base a esta decidimos el siguiente estado.
             if text == self.agent.answerForClassification:
                 self.agent.classifyOrAnalyze = True
                 self.set_next_state("SEND_STATE")
@@ -164,7 +158,8 @@ class ChatBotAgent(Agent):
                 self.set_next_state("MID_STATE")
             else:
                 self.set_next_state("INPUT_STATE")
-            
+    
+    # Estado de la FSM.
     class sendState(State):
 
         # Este método se llama después de ejecutarse on_start().
@@ -175,14 +170,12 @@ class ChatBotAgent(Agent):
                 pass
 
             # Envía el mensaje.
-            #await self.send(msg=Message(to="dasi2@blabber.im" if self.agent.classifyOrAnalyze else "dasi3@blabber.im", body=ChatBotAgent.getUserText()))
             if self.agent.classifyOrAnalyze:
                 await self.send(msg=Message(to="dasi2@blabber.im", body=ChatBotAgent.getUserText()))
             else:
                 # Añadimos la categoria a analizar
                 ChatBotAgent.setAnalyzerData(ChatBotAgent.getUserText(), "type")
-                cuerpo = json.dumps(ChatBotAgent.getAnalyzerData())
-                await self.send(msg=Message(to="dasi3@blabber.im", body=cuerpo))
+                await self.send(msg=Message(to="dasi3@blabber.im", body=dumps(ChatBotAgent.getAnalyzerData())))
 
             # Si no se introduce un poco de retardo, el envío podría no completarse.
             await sleep(0.2)
@@ -193,6 +186,7 @@ class ChatBotAgent(Agent):
             # Pasamos al estado de escucha para que el agente de clasificación nos pueda devolver el tipo de noticia.
             self.set_next_state("RECEIVE_STATE")
 
+    # Estado de la FSM.
     class receiveState(State):
 
         # Este método se llama después de ejecutarse on_start().
@@ -210,6 +204,7 @@ class ChatBotAgent(Agent):
             # Volvemos al estado inicial para saber que quiere el usuario.
             self.set_next_state("INPUT_STATE")
 
+    # Estado de la FSM.
     class midState(State):
 
         # Este método se llama después de ejecutarse on_start().
@@ -230,7 +225,7 @@ class ChatBotAgent(Agent):
             ChatBotAgent.setUserText(None)
 
             # Pedimos al usuario que introduzca la categoria que quiere analizar
-            ctrl.Controller.getInstance().action({'event': 'BOT_ANSWER', 'object': "bot > What do you want to know? \nChoose one or more: Organization, Person, Location, Date, Time, Money, Percent, Facility or GPE"})
+            ctrl.Controller.getInstance().action({'event': 'BOT_ANSWER', 'object': "bot > What do you want to know? \nChoose one or more: Organization, Person, Location, Date, Time, Money, Percent, Facility or GPE\n"})
 
             # Pasamos al estado de escucha para que el agente de clasificación nos pueda devolver el tipo de noticia.
             self.set_next_state("SEND_STATE")
