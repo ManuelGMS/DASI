@@ -37,10 +37,10 @@ class ChatBotAgent(Agent):
         super().__init__(*args, **kwargs)
 
         # Texto a responder para clasificar.
-        self.answerForClassification = "give me the new"
+        self.answerForClassification = "give me the news"
 
         # Texto a responder para analizar.
-        self.answerForAnalyze = "choose the new"
+        self.answerForAnalyze = "choose the news"
 
     # Establece el último texto que llegó de la GUI.
     @staticmethod
