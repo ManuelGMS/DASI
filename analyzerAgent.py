@@ -73,13 +73,20 @@ class AnalyzerAgent(Agent):
                     for cate in category.split():
                         valores[cate] = self.agent.get_continuous_chunks(fileContent, cate.upper())
 
-                    if valores == []:
-                        self.agent.lastAnalyze = "Can't find that category on the new"
-                    else:
-                        self.agent.lastAnalyze = str(valores)
+
+                    encontrado = ""
+                    for cate in valores:
+                        if valores[cate] == []:
+                            encontrado += "Can't find words of the category " + cate + " on this news\n"
+                        else:
+                            encontrado += "Words of the category " + cate + " are: "
+                            for word in valores[cate]:
+                                encontrado += word + ", "
+                            encontrado += "\n"
+
+                    self.agent.lastAnalyze = encontrado
 
                 else:
-
                     # No se ha encontrado la noticia.
                     self.agent.lastAnalyze = "The notice wasn't found in 'news' folder"
 
