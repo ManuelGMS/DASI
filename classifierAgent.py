@@ -111,8 +111,24 @@ class ClassifierAgent(Agent):
                 # Dividimos los datos en un set de entrenamiento y en un set de pruebas.
                 trainValues, testValues, trainResults, testResults = train_test_split(texts, labels, test_size=0.25)
 
-                # Clasificador SVM.
-                svm = SVC(C=1, kernel='linear', degree=3, gamma='auto')
+                '''
+
+                Clasificador SVM
+
+                C: Factor de regularización. 
+                    (<<): se ajustarán los hiperplanos para tener menor margen de separación y así conseguir que todos los puntos de entrenamiento se clasifiquen correctamente.
+                    (>>): se ajustarńa los hiperplanos para tener un mayor margen de separación.
+                
+                kernel: tipo de kernel ('linear', 'poly', 'sigmoid', 'rbf', etc).
+                
+                degree ('poly'): grado del kernel polinómico (3 por defecto).
+                
+                gamma ('rbf', 'poly' y 'sigmoid'): Coeficiente del kernel.
+                    (<<): Menos curvatura en los límites de decisión.
+                    (>>): Más curvatura en los límites de decisión.
+
+                '''
+                svm = SVC(C=1, kernel='linear')
 
                 # Ajusta el clasificador al modelo de datos.
                 svm.fit(trainValues, trainResults)
