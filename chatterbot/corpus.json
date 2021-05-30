@@ -32,6 +32,11 @@
     ["i want to extract information of the news", "choose the news"],
     ["extract information", "choose the news"],
 
+    ["more news", "which topic do you want?"], 
+    ["i want more news", "which topic do you want?"], 
+    ["do you have news of an specific topic?", "which topic do you want?"], 
+    ["are there more news", "which topic do you want?"], 
+
     ["help", "\nWelcome to the help menu of this application.\nFor classify:\n\t* Try to write sentences that contains the word 'classify'.\n\t* Write sentences asking about the type of the news.\nFor analyze:\n\t* Try to write sentences that contains the word 'analyze'.\n\t* Write sentences asking about the information of the new."],
     ["i need some help", "\nWelcome to the help menu of this application.\nFor classify:\n\t* Try to write sentences that contains the word 'classify'.\n\t* Write sentences asking about the type of the news.\nFor analyze:\n\t* Try to write sentences that contains the word 'analyze'.\n\t* Write sentences asking about the information of the new."],
     ["i want some help", "\nWelcome to the help menu of this application.\nFor classify:\n\t* Try to write sentences that contains the word 'classify'.\n\t* Write sentences asking about the type of the news.\nFor analyze:\n\t* Try to write sentences that contains the word 'analyze'.\n\t* Write sentences asking about the information of the new."],

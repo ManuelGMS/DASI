@@ -1,6 +1,7 @@
 from chatBotAgent import ChatBotAgent
 from analyzerAgent import AnalyzerAgent
 from classifierAgent import ClassifierAgent
+from recomenderAgent import RecomenderAgent
 
 class Model:
     
@@ -16,6 +17,13 @@ class Model:
 
     # Este método carga los agentes cuando se inicia la aplicación.
     def loadAgents(self):
+
+        # Instanciamos el agente Analizador.
+        self.__recomenderAgent = RecomenderAgent("dasi4@blabber.im", "dasiproject4")
+        # Indicamos al agente que comience (setup).
+        future = self.__recomenderAgent.start()
+        # Esperamos a la inicialización completa del agente.
+        future.result()
 
         # Instanciamos el agente Analizador.
         self.__analyzerAgent = AnalyzerAgent("dasi3@blabber.im", "dasiproject3")

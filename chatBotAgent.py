@@ -41,6 +41,9 @@ class ChatBotAgent(Agent):
         # Texto a responder para analizar.
         self.answerForAnalyze = "choose the news"
 
+        # Texto a responder para buscar noticias.
+        self.answerForSearch = "which topic do you want?"
+
     # Establece el último texto que llegó de la GUI.
     @staticmethod
     def setUserText(text):
@@ -143,14 +146,16 @@ class ChatBotAgent(Agent):
 
             # Analizamos la respuesta del ChatBot y en base a esta decidimos el siguiente estado.
             if text == self.agent.answerForClassification:
-                self.agent.classifyOrAnalyze = True
+                self.agent.classifyOrAnalyze = 1
                 self.set_next_state("SEND_STATE")
             elif text == self.agent.answerForAnalyze:
-                self.agent.classifyOrAnalyze = False
+                self.agent.classifyOrAnalyze = 2
                 self.set_next_state("MID_STATE")
+            elif text == self.agent.answerForSearch:
+                self.agent.classifyOrAnalyze = 3
+                self.set_next_state("SEND_STATE")
             else:
                 self.set_next_state("INPUT_STATE")
-    
     # Estado de la FSM.
     class sendState(State):
 
@@ -162,12 +167,14 @@ class ChatBotAgent(Agent):
                 pass
 
             # Envía el mensaje.
-            if self.agent.classifyOrAnalyze:
+            if self.agent.classifyOrAnalyze == 1:
                 await self.send(msg=Message(to="dasi2@blabber.im", body=ChatBotAgent.getUserText()))
-            else:
+            elif self.agent.classifyOrAnalyze == 2:
                 # Añadimos la categoria a analizar
                 ChatBotAgent.setAnalyzerData(ChatBotAgent.getUserText(), "type")
                 await self.send(msg=Message(to="dasi3@blabber.im", body=dumps(ChatBotAgent.getAnalyzerData())))
+            else:
+                await self.send(msg=Message(to="dasi4@blabber.im", body=ChatBotAgent.getUserText()))
 
             # Si no se introduce un poco de retardo, el envío podría no completarse.
             await sleep(0.2)
