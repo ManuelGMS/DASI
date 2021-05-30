@@ -4,7 +4,6 @@ from json import dumps
 
 from asyncio import sleep
 
-from os import remove
 from os import devnull
 from os.path import exists
 
