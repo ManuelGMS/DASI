@@ -214,12 +214,8 @@ class ChatBotAgent(Agent):
             while ChatBotAgent.getUserText() is None:
                 pass
 
-            # Guardamos la noticia.         
-            #ChatBotAgent.__dictAnalyze["new"] = ChatBotAgent.getUserText()
+            # Guardamos la noticia.
             ChatBotAgent.setAnalyzerData(ChatBotAgent.getUserText(), "new")
-
-            # Si no se introduce un poco de retardo, el envío podría no completarse.
-            await sleep(0.2)
 
             # Volvemos a dejar el texto en None para que vuelva a quedarse esperando en el bucle.
             ChatBotAgent.setUserText(None)
