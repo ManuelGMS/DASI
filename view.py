@@ -1,3 +1,4 @@
+from tkinter.constants import WORD
 import controller as ctrl
 
 from spade import quit_spade
@@ -9,7 +10,6 @@ from tkinter import END
 from tkinter import Frame
 from tkinter import Entry
 from tkinter import Button
-from tkinter import INSERT
 from tkinter.scrolledtext import ScrolledText
 
 # **********************************************************************************************************************
@@ -108,7 +108,7 @@ class GuiChatImp(GuiChat):
             self.etrInput.delete(0, END)
 
             self.txtInfo.configure(state='normal')
-            self.txtInfo.insert(INSERT, "human > " + text + "\n")
+            self.txtInfo.insert(END, "human > " + text + "\n")
             self.txtInfo.see(END)
             self.txtInfo.configure(state='disabled')
 
@@ -120,5 +120,6 @@ class GuiChatImp(GuiChat):
         if context["event"] == "UPDATE_CHAT":
 
             self.txtInfo.configure(state='normal')            
-            self.txtInfo.insert(INSERT, context["object"] + "\n")
+            self.txtInfo.insert(END, context["object"] + "\n")
+            self.txtInfo.see(END)
             self.txtInfo.configure(state='disabled')
