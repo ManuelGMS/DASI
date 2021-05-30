@@ -87,10 +87,10 @@ class ChatBotAgent(Agent):
                 storage_adapter='chatterbot.storage.SQLStorageAdapter', 
                 # Indica la base de datos en la que se almacenará la información de las conversaciones.
                 database_uri='sqlite:///chatterbot/database.sqlite3',
-                # Los preprocesadores son funciones que modifican la entrada que recibe el bot antes de que esta sea procesada por un adaptador lógico.
+                # Los preprocesadores son funciones que modifican las entradas que recibe el bot antes de aplicarlas un procesamiento ([] -> No utilizamos preprocesamiento).
                 preprocessors=[
-                    # Elimina espacios en blanco adicionales que son innecesarios.
-                    'chatterbot.preprocessors.clean_whitespace'
+                    # Elimina espacios en blanco y saltos de línea que son innecesarios.
+                    # 'chatterbot.preprocessors.clean_whitespace'
                 ],
                 # Los adaptadores lógicos determinan cómo se selecciona una respuesta ante una entrada.
                 logic_adapters=[

@@ -109,7 +109,7 @@ class GuiChatImp(GuiChat):
 
             self.txtInfo.configure(state='normal')
             self.txtInfo.insert(INSERT, "human > " + text + "\n")
-            self.txtInfo.yview(END)
+            self.txtInfo.see(END)
             self.txtInfo.configure(state='disabled')
 
             ctrl.Controller.getInstance().action({ 'event': 'HUMAN_INPUT', 'object': str(text).lower() })

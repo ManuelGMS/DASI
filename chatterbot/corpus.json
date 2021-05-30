@@ -16,19 +16,28 @@
     ["could you please classify this news", "give me the news"], 
     ["what type of news is this?", "give me the news"], 
     
-    ["analyze", "give me the news"], 
-    ["analyze news", "give me the news"], 
-    ["analyze that news", "give me the news"], 
-    ["analyze this news", "give me the news"], 
-    ["i have a news to analyze", "give me the news"], 
-    ["i want you to analyze this news", "give me the news"], 
-    ["i would like you to analyze a news", "give me the news"],
-    ["please analyze", "give me the news"], 
-    ["please analyze this news", "give me the news"], 
-    ["could you please analyze this news", "give me the news"],
+    ["analyze", "choose the news"], 
+    ["analyze news", "choose the news"], 
+    ["analyze that news", "choose the news"], 
+    ["analyze this news", "choose the news"], 
+    ["i have a news to analyze", "choose the news"], 
+    ["i want you to analyze this news", "choose the news"], 
+    ["i would like you to analyze a news", "choose the news"],
+    ["please analyze", "choose the news"], 
+    ["please analyze this news", "choose the news"], 
+    ["could you please analyze this news", "choose the news"],
+    ["give me some information of the news", "choose the news"],
+    ["i would like to get some information about the news", "choose the news"],
+    ["give me info of the new", "choose the news"],
+    ["i want to extract information of the news", "choose the news"],
+    ["extract information", "choose the news"],
 
-    ["help", "Welcome to the help menu:\n\r\t For \\n classify, write sentences that contain words like 'news' or  "]
-
+    ["help", "\nWelcome to the help menu of this application.\nFor classify:\n\t* Try to write sentences that contains the word 'classify'.\n\t* Write sentences asking about the type of the news.\nFor analyze:\n\t* Try to write sentences that contains the word 'analyze'.\n\t* Write sentences asking about the information of the new."],
+    ["i need some help", "\nWelcome to the help menu of this application.\nFor classify:\n\t* Try to write sentences that contains the word 'classify'.\n\t* Write sentences asking about the type of the news.\nFor analyze:\n\t* Try to write sentences that contains the word 'analyze'.\n\t* Write sentences asking about the information of the new."],
+    ["i want some help", "\nWelcome to the help menu of this application.\nFor classify:\n\t* Try to write sentences that contains the word 'classify'.\n\t* Write sentences asking about the type of the news.\nFor analyze:\n\t* Try to write sentences that contains the word 'analyze'.\n\t* Write sentences asking about the information of the new."],
+    ["give me some help", "\nWelcome to the help menu of this application.\nFor classify:\n\t* Try to write sentences that contains the word 'classify'.\n\t* Write sentences asking about the type of the news.\nFor analyze:\n\t* Try to write sentences that contains the word 'analyze'.\n\t* Write sentences asking about the information of the new."],
+    ["help me please", "\nWelcome to the help menu of this application.\nFor classify:\n\t* Try to write sentences that contains the word 'classify'.\n\t* Write sentences asking about the type of the news.\nFor analyze:\n\t* Try to write sentences that contains the word 'analyze'.\n\t* Write sentences asking about the information of the new."]
+    
   ]
 
 }
