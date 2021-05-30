@@ -19,6 +19,25 @@ from nltk import word_tokenize, pos_tag, ne_chunk
 
 class AnalyzerAgent(Agent):
 
+    def get_continuous_chunks(self, text, label):
+        
+        chunked = ne_chunk(pos_tag(word_tokenize(text)))
+        continuous_chunk = []
+        current_chunk = []
+
+        for subtree in chunked:
+            if type(subtree) == Tree and subtree.label() == label:
+                current_chunk.append(" ".join([token for token, pos in subtree.leaves()]))
+            if current_chunk:
+                named_entity = " ".join(current_chunk)
+                if named_entity not in continuous_chunk:
+                    continuous_chunk.append(named_entity)
+                    current_chunk = []
+            else:
+                continue
+
+        return continuous_chunk
+
     # Esta clase interna sirve para definir el comportamiento del agente.
     class FsmBehaviour(FSMBehaviour):
         pass
@@ -48,30 +67,11 @@ class AnalyzerAgent(Agent):
                         # Obtenemos el contenido del fichero.
                         fileContent = file.read()
                     
-                    def get_continuous_chunks(text, label):
-                        chunked = ne_chunk(pos_tag(word_tokenize(text)))
-                        prev = None
-                        continuous_chunk = []
-                        current_chunk = []
-
-                        for subtree in chunked:
-                            if type(subtree) == Tree and subtree.label() == label:
-                                current_chunk.append(" ".join([token for token, pos in subtree.leaves()]))
-                            if current_chunk:
-                                named_entity = " ".join(current_chunk)
-                                if named_entity not in continuous_chunk:
-                                    continuous_chunk.append(named_entity)
-                                    current_chunk = []
-                            else:
-                                continue
-
-                        return continuous_chunk
-
                     # Para una categoria
                     category = dictdictAux["type"]
                     valores = {}
                     for cate in category.split():
-                        valores[cate] = get_continuous_chunks(fileContent, cate.upper())
+                        valores[cate] = self.agent.get_continuous_chunks(fileContent, cate.upper())
 
                     if valores == []:
                         self.agent.lastAnalyze = "Can't find that category on the new"
