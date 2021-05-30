@@ -117,10 +117,6 @@ class ChatBotAgent(Agent):
                 with redirect_stdout(open(devnull, "w")):
                     trainer.train('./chatterbot/corpus.json')
 
-                # Eliminamos el fichero.
-                if exists("sentence_tokenizer.pickle"):
-                    remove("sentence_tokenizer.pickle")
-
             # Cambiamos al estado INPUT en que averiguamos que quiere el usuario.
             self.set_next_state("INPUT_STATE")
 
