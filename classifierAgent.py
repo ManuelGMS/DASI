@@ -1,9 +1,9 @@
-import csv
-import asyncio
-import pandas as pd
-
 from pickle import dump
 from pickle import load
+
+from csv import writer
+from asyncio import sleep
+from pandas import read_csv
 
 from os import walk
 from os import remove
@@ -32,28 +32,30 @@ from sklearn.feature_extraction.text import TfidfVectorizer
 class ClassifierAgent(Agent):
 
     def preprocessing(self, text):
-        
-        '''
-        # Lemmatization: 
-        # Tokenization: Dividimos una frase en palabras.
-        # pos_tag devuele pares (<word>, <typeOfWord>), donde <typeOfWord> puede ser un nombre, un verbo un adjetivo, un advervio, etc ...
-        # Solo aceptaremos palabras puramente alfabéticas y que no sean stopwords, es decir, palabras que no tienen un significado por sí solas,
-        # suelen ser: artículos, pronombres, preposiciones y adverbios. Los buscadores obvian estas palabras.
-        '''
 
+        # Contendrá el texto lematizado de una noticia.
         lemmatizedText = ""
+        
+        # Lematizador de palabras: 
         lemmatizer = WordNetLemmatizer()
         
-        for word, tag in pos_tag(word_tokenize(text.lower())):
-            if word not in sw.words('english') and word.isalpha():
-                lemmatizedText += lemmatizer.lemmatize(word) + " "
+        # Toquenizamos el texto (lo dividimos en palabras) y luego para cada una obtenemos un par (word, typeOfWord).
+        for word, typeOfWord in pos_tag(word_tokenize(text.lower())):
             
+            # Si la palabra es completamente alfabética y no es una stopword (no tiene significado por sí misma: artículos, pronombres, preposiciones, adverbios, etc ...).
+            if word.isalpha() and word not in sw.words('english'):
+
+                # Lematizamos la palabra y la añadimos al texto de la noticia lematizada.
+                lemmatizedText += lemmatizer.lemmatize(word) + " "
+        
+        # Devolvemos la noticia lematizada.
         return lemmatizedText.rstrip()
 
     # Esta clase interna sirve para definir el comportamiento del agente.
     class FsmBehaviour(FSMBehaviour):
         pass
 
+    # Estado de la FSM.
     class initState(State):
 
         # Este método se llama después de ejecutarse on_start().
@@ -69,7 +71,7 @@ class ClassifierAgent(Agent):
                 with open('classifier/newsClassified.csv', 'w') as csvFile:
 
                     # Escribimos una primera fila a modo de cabecera.
-                    csvWriter = csv.writer(csvFile)
+                    csvWriter = writer(csvFile)
                     csvWriter.writerow(["new", "label"])
 
                     # Obtenemos las listas de los ficheros de cada directorio.
@@ -85,7 +87,7 @@ class ClassifierAgent(Agent):
                                 csvWriter.writerow([file.read(), basename(directory)])
 
                 # Creamos un corpus, es decir, un conjunto de textos de diversas clases ordenados y clasificados. 
-                corpus = pd.read_csv("classifier/newsClassified.csv", encoding='utf-8')
+                corpus = read_csv("classifier/newsClassified.csv", encoding='utf-8')
 
                 # Preprocesamos los textos de cada noticia.
                 corpus['lemmatizedNew'] = corpus['new'].map(self.agent.preprocessing)
@@ -132,6 +134,7 @@ class ClassifierAgent(Agent):
             # Una vez comfigurado todo pasamos al estado de recepción a la espera de noticias que clasificar.
             self.set_next_state("RECEIVE_STATE")
 
+    # Estado de la FSM.
     class receiveState(State):
 
         # Este método se llama después de ejecutarse on_start().
@@ -172,6 +175,7 @@ class ClassifierAgent(Agent):
             # Una vez se ha clasificado la noticia pasamos al estado de envío para informar al agente ChatBot.
             self.set_next_state("SEND_STATE")
 
+    # Estado de la FSM.
     class sendState(State):
 
         # Este método se llama después de ejecutarse on_start().
@@ -181,7 +185,7 @@ class ClassifierAgent(Agent):
             await self.send(msg=Message(to="dasi1@blabber.im", body=self.agent.lastPrediction))
 
             # Si no se introduce un poco de retardo, el envío podría no completarse.
-            await asyncio.sleep(0.2)
+            await sleep(0.2)
 
             # Pasamos al estado de escucha para que el agente de clasificación nos pueda devolver el tipo de noticia.
             self.set_next_state("RECEIVE_STATE")
