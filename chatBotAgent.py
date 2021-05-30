@@ -218,7 +218,7 @@ class ChatBotAgent(Agent):
             ChatBotAgent.setUserText(None)
 
             # Pedimos al usuario que introduzca la categoria que quiere analizar
-            ctrl.Controller.getInstance().action({'event': 'BOT_ANSWER', 'object': "bot > What do you want to know? \nChoose one or more: Organization, Person, Location, Date, Time, Money, Percent, Facility or GPE\n"})
+            ctrl.Controller.getInstance().action({'event': 'BOT_ANSWER', 'object': "bot > What do you want to know? \nChoose one or more: Organization, Person, Location, Date, Time, Money, Percent, Facility or GPE"})
 
             # Pasamos al estado de escucha para que el agente de clasificación nos pueda devolver el tipo de noticia.
             self.set_next_state("SEND_STATE")
