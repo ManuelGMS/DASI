@@ -16,11 +16,16 @@
     ["could you please classify this news", "give me the new"], 
     ["what type of news is this?", "give me the new"], 
     
-    ["analyze", "choose the new"], 
-    ["analyze new", "choose the new"], 
-    ["analyze that", "choose the new"], 
-    ["analyze this", "choose the new"], 
-    ["i want you to analyze this new", "choose the new"]
+    ["analyze", "give me the new"], 
+    ["analyze news", "give me the new"], 
+    ["analyze that news", "give me the new"], 
+    ["analyze this news", "give me the new"], 
+    ["i have a news to analyze", "give me the new"], 
+    ["i want you to analyze this news", "give me the new"], 
+    ["i would like you to analyze a news", "give me the new"],
+    ["please analyze", "give me the new"], 
+    ["please analyze this news", "give me the new"], 
+    ["could you please analyze this news", "give me the new"]
     
   ]
 

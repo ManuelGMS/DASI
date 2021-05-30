@@ -42,9 +42,6 @@ class ChatBotAgent(Agent):
         # Texto a responder para analizar.
         self.answerForAnalyze = "choose the new"
 
-        # True == Classify, False == Analyze
-        self.classifyOrAnalyze = None
-
     # Establece el último texto que llegó de la GUI.
     @staticmethod
     def setUserText(text):
