@@ -1,4 +1,4 @@
-#!/home/dasi/Escritorio/DASI/dasi-venv/bin/python3
+#!/home/manuelgms/Master/DASI/Proyecto/DASI/dasi-venv/bin/python3
 # -*- coding: utf-8 -*-
 import re
 import sys

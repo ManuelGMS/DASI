@@ -37,7 +37,7 @@ deactivate () {
 # unset irrelevant variables
 deactivate nondestructive
 
-VIRTUAL_ENV="/home/dasi/Escritorio/DASI/dasi-venv"
+VIRTUAL_ENV="/home/manuelgms/Master/DASI/Proyecto/DASI/dasi-venv"
 export VIRTUAL_ENV
 
 _OLD_VIRTUAL_PATH="$PATH"

@@ -29,7 +29,7 @@ end
 # unset irrelevant variables
 deactivate nondestructive
 
-set -gx VIRTUAL_ENV "/home/dasi/Escritorio/DASI/dasi-venv"
+set -gx VIRTUAL_ENV "/home/manuelgms/Master/DASI/Proyecto/DASI/dasi-venv"
 
 set -gx _OLD_VIRTUAL_PATH $PATH
 set -gx PATH "$VIRTUAL_ENV/bin" $PATH
