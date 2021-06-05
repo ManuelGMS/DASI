@@ -12,8 +12,8 @@ blis==0.2.4
 certifi==2021.5.30
 cffi==1.14.5
 chardet==3.0.4
-ChatterBot==1.0.5
-chatterbot-corpus==1.2.0
+ChatterBot
+chatterbot-corpus
 click==8.0.1
 cryptography==3.4.7
 cymem==2.0.5
