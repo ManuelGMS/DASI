@@ -1,4 +1,5 @@
-from tkinter.constants import WORD
+from tkinter import scrolledtext
+from tkinter.constants import INSERT
 import controller as ctrl
 
 from spade import quit_spade
@@ -10,6 +11,7 @@ from tkinter import END
 from tkinter import Frame
 from tkinter import Entry
 from tkinter import Button
+from tkinter import INSERT
 from tkinter.scrolledtext import ScrolledText
 
 # **********************************************************************************************************************
@@ -74,6 +76,22 @@ class GuiChat(GUI):
 # **********************************************************************************************************************
 # **********************************************************************************************************************
 
+# Clase que hereda de ScrolledText para gestionar la caja de texto y sus eventos.
+class Notepad(ScrolledText):
+
+    def __init__(self, master, **kw):
+        ScrolledText.__init__(self, master, **kw)
+        self.bind('<Control-c>', self.__copy)
+        self.bind('<Key>', lambda param : "break")
+
+    def __copy(self, event=None):
+        self.clipboard_clear()
+        self.clipboard_append(self.get("sel.first", "sel.last"))
+
+# **********************************************************************************************************************
+# **********************************************************************************************************************
+# **********************************************************************************************************************
+
 # Clase implementación de una interfaz gráfica de usuario.
 class GuiChatImp(GuiChat):
    
@@ -86,27 +104,18 @@ class GuiChatImp(GuiChat):
         self.grid_rowconfigure(0, weight=1)
         self.grid_columnconfigure(0, weight=1)    
         
-        self.txtInfo = ScrolledText(self, font=("Arial Bold", 14))
+        self.txtInfo = Notepad(self, font=("Arial Bold", 14))
         self.txtInfo.grid(row=0, column=0, columnspan=2, padx=10, pady=10)
-        self.txtInfo.bind('<Key>', lambda param : "break")
-        self.txtInfo.bind('<Control-c>', self.__copy())
 
         self.etrInput = Entry(self, font=("Arial Bold", 20), justify='center')        
         self.etrInput.grid(row=1, column=0, padx=10, pady=10, sticky=W+E)
-        self.etrInput.bind('<Return>', lambda event : self.__send())
+        self.etrInput.bind('<Return>', lambda param : self.__send())
         self.etrInput.focus()
 
         self.btnEnviar = Button(self, text="SEND", font=("Arial Bold", 20), command=lambda : self.__send())
         self.btnEnviar.grid(row=1, column=1, padx=10, pady=10, sticky=W+E)
         self.btnEnviar.bind('<Return>', lambda event : self.__send())
-    
-    # Este método se llama al pulsar la combinación CTRL + C.
-    def __copy(self):
-    	
-    	self.txtInfo.clipboard_clear()
-    	text = self.txtInfo.get(SEL_FIRST, SEL_LAST) #.selection_get()
-    	self.txtInfo.clipboard_append("hola")
-    
+
     # Este método se llama al ser pulsado el botón SEND, obtiene el texto de la GUI y lo pasa al controlador.
     def __send(self):
 
