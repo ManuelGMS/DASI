@@ -88,7 +88,8 @@ class GuiChatImp(GuiChat):
         
         self.txtInfo = ScrolledText(self, font=("Arial Bold", 14))
         self.txtInfo.grid(row=0, column=0, columnspan=2, padx=10, pady=10)
-        self.txtInfo.configure(state='disabled')
+        self.txtInfo.bind('<Key>', lambda param : "break")
+        self.txtInfo.bind('<Control-c>', self.__copy())
 
         self.etrInput = Entry(self, font=("Arial Bold", 20), justify='center')        
         self.etrInput.grid(row=1, column=0, padx=10, pady=10, sticky=W+E)
@@ -99,6 +100,13 @@ class GuiChatImp(GuiChat):
         self.btnEnviar.grid(row=1, column=1, padx=10, pady=10, sticky=W+E)
         self.btnEnviar.bind('<Return>', lambda event : self.__send())
     
+    # Este método se llama al pulsar la combinación CTRL + C.
+    def __copy(self):
+    	
+    	self.txtInfo.clipboard_clear()
+    	text = self.txtInfo.get(SEL_FIRST, SEL_LAST) #.selection_get()
+    	self.txtInfo.clipboard_append("hola")
+    
     # Este método se llama al ser pulsado el botón SEND, obtiene el texto de la GUI y lo pasa al controlador.
     def __send(self):
 
@@ -107,10 +115,8 @@ class GuiChatImp(GuiChat):
             text = self.etrInput.get()
             self.etrInput.delete(0, END)
 
-            self.txtInfo.configure(state='normal')
             self.txtInfo.insert(END, "human > " + text + "\n")
             self.txtInfo.see(END)
-            self.txtInfo.configure(state='disabled')
 
             ctrl.Controller.getInstance().action({ 'event': 'HUMAN_INPUT', 'object': str(text).lower() })
 
@@ -118,8 +124,6 @@ class GuiChatImp(GuiChat):
     def update(self, context):
 
         if context["event"] == "UPDATE_CHAT":
-
-            self.txtInfo.configure(state='normal')            
+            
             self.txtInfo.insert(END, context["object"] + "\n")
             self.txtInfo.see(END)
-            self.txtInfo.configure(state='disabled')

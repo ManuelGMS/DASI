@@ -115,9 +115,8 @@ class ChatBotAgent(Agent):
                 # Objeto para entrenar al bot con nuestro propio corpus.
                 trainer = ChatterBotCorpusTrainer(self.agent.chatBot)
 
-                # Indicamos la ruta en la que se encuentra el corpus y realizamos un entrenamiento silencioso.
-                with redirect_stdout(open(devnull, "w")):
-                    trainer.train('./chatterbot/corpus.json')
+                # Indicamos la ruta en la que se encuentra el corpus y realizamos el entrenamiento.
+                trainer.train('./chatterbot/corpus.json')
 
             # Cambiamos al estado INPUT en que averiguamos que quiere el usuario.
             self.set_next_state("INPUT_STATE")
