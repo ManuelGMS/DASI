@@ -13,3 +13,13 @@ python3 -m pip install -U spade
 python3 -m pip install -U pandas
 python3 -m pip install -U sklearn
 python3 -m pip install -U googlenews
+
+# Librerias de python.
+pip3 install -U pip
+pip3 install -U nltk
+pip3 install -U chatterbot
+pip3 install -U chatterbot_corpus
+pip3 install -U spade
+pip3 install -U pandas
+pip3 install -U sklearn
+pip3 install -U googlenews
