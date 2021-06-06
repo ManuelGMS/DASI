@@ -1,18 +1,12 @@
-from json import loads
-
 from asyncio import sleep
 
-from os.path import join
-from os.path import exists
+from GoogleNews import GoogleNews
 
 from spade.agent import Agent
 from spade.message import Message
 from spade.template import Template
 from spade.behaviour import State
 from spade.behaviour import FSMBehaviour
-
-from GoogleNews import GoogleNews
-
 
 class RecomenderAgent(Agent):
 
@@ -60,6 +54,10 @@ class RecomenderAgent(Agent):
                     if str(a['datetime']) != "None":
                         res += str(a['datetime']) + '\n'
                     res += str(a['link']) + '\n' + '\n'
+
+                # Respuesta a devolver si no se han encontrado noticias.
+                if res == "":
+                    res = "I cant find news about that topic"
 
                 # No se ha encontrado la noticia.
                 self.agent.lastPrediction = res
