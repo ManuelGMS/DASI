@@ -1,27 +1,34 @@
 #!/bin/bash
 
-# Librerias del sistema.
-sudo apt-get -y install python3-tk
-sudo apt-get -y install python3-pip
+# Establecemos el PATH para los binarios propios del usuario.
+PATH="$PATH:$HOME/.local/bin"
 
-# Librerias de python.
-python3 -m pip install -U pip
-python3 -m pip install -U nltk
-python3 -m pip install -U spacy
-python3 -m pip install -U chatterbot
-python3 -m pip install -U chatterbot_corpus
-python3 -m pip install -U spade
-python3 -m pip install -U pandas
-python3 -m pip install -U sklearn
-python3 -m pip install -U googlenews
+# Instalamos las librerias del sistema.
+sudo apt-get -y install python3-tk 1> /dev/null 2> /dev/null
+echo "Instalado: 1/12"
+sudo apt-get -y install python3-pip 1> /dev/null 2> /dev/null
+echo "Instalado: 2/12"
 
-# Librerias de python.
-pip3 install -U pip
-pip3 install -U nltk
-pip3 install -U spacy
-pip3 install -U chatterbot
-pip3 install -U chatterbot_corpus
-pip3 install -U spade
-pip3 install -U pandas
-pip3 install -U sklearn
-pip3 install -U googlenews
+# Actualizamos el instalador pip.
+python3 -m pip install -U pip 1> /dev/null 2> /dev/null
+echo "Instalado: 3/12"
+
+# Instalamos las librerias de python.
+python3 -m pip install -U nltk 1> /dev/null 2> /dev/null
+echo "Instalado: 4/12"
+python3 -m pip install -U spacy 1> /dev/null 2> /dev/null
+echo "Instalado: 5/12"
+python3 -m pip install -U chatterbot 1> /dev/null 2> /dev/null
+echo "Instalado: 6/12"
+python3 -m pip install -U chatterbot_corpus 1> /dev/null 2> /dev/null
+echo "Instalado: 7/12"
+python3 -m pip install -U spade 1> /dev/null 2> /dev/null
+echo "Instalado: 8/12"
+python3 -m pip install -U pandas 1> /dev/null 2> /dev/null
+echo "Instalado: 9/12"
+python3 -m pip install -U sklearn 1> /dev/null 2> /dev/null
+echo "Instalado: 10/12"
+python3 -m pip install -U googlenews 1> /dev/null 2> /dev/null
+echo "Instalado: 11/12"
+python3 -m pip install -U chatterbot 1> /dev/null 2> /dev/null
+echo "Instalado: 12/12"
