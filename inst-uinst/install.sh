@@ -9,8 +9,6 @@ echo "Instalado: 1/11"
 sudo apt-get -y install python3-pip 1> /dev/null 2> /dev/null
 echo "Instalado: 2/11"
 
-python3 -m pip install chatterbot
-
 # Actualizamos el instalador pip.
 python3 -m pip install -U pip 1> /dev/null 2> /dev/null
 echo "Instalado: 3/11"
@@ -30,5 +28,5 @@ python3 -m pip install sklearn 1> /dev/null 2> /dev/null
 echo "Instalado: 9/11"
 python3 -m pip install googlenews 1> /dev/null 2> /dev/null
 echo "Instalado: 10/11"
-#python3 -m pip install chatterbot
-#echo "Instalado: 11/11"
+python3 -m pip install chatterbot
+echo "Instalado: 11/11"
