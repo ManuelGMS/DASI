@@ -13,7 +13,7 @@ echo "Instalado: 2/11"
 python3 -m pip install -U pip 1> /dev/null 2> /dev/null
 echo "Instalado: 3/11"
 
-chmod -R 777 /usr/lib/python3*
+sudo chmod -R 777 /usr/lib/python3*
 
 # Instalamos las librerias de python.
 python3 -m pip install nltk 1> /dev/null 2> /dev/null
