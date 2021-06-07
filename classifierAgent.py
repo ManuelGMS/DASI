@@ -90,7 +90,7 @@ class ClassifierAgent(Agent):
                 corpus = read_csv("classifier/newsClassified.csv", encoding='utf-8')
 
                 # Preprocesamos los textos de cada noticia.
-                corpus['lemmatizedNew'] = corpus['news'].map(self.agent.preprocessing)
+                corpus['lemmatizedNews'] = corpus['news'].map(self.agent.preprocessing)
 
                 # Si queda alguno de estos ficheros hay que eliminarlos para volver a generarlos.
                 if exists("classifier/svm.pkl"): remove("classifier/svm.pkl")
@@ -99,7 +99,7 @@ class ClassifierAgent(Agent):
 
                 # Otenemos para el texto de cada noticia su vector TF-IDF.
                 tfIdfMatrixVectors = TfidfVectorizer()
-                texts = tfIdfMatrixVectors.fit_transform(corpus['lemmatizedNew'])
+                texts = tfIdfMatrixVectors.fit_transform(corpus['lemmatizedNews'])
 
                 # LabelEncoder convierte las etiquetas de las clases en identificadores numéricos que van de 0 a N-Clases.
                 labelEncoder = LabelEncoder()
