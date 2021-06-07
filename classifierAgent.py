@@ -72,7 +72,7 @@ class ClassifierAgent(Agent):
 
                     # Escribimos una primera fila a modo de cabecera.
                     csvWriter = writer(csvFile)
-                    csvWriter.writerow(["new", "label"])
+                    csvWriter.writerow(["news", "label"])
 
                     # Obtenemos las listas de los ficheros de cada directorio.
                     for directory, _, files in walk('bbcsport'):
@@ -90,10 +90,7 @@ class ClassifierAgent(Agent):
                 corpus = read_csv("classifier/newsClassified.csv", encoding='utf-8')
 
                 # Preprocesamos los textos de cada noticia.
-                corpus['lemmatizedNew'] = corpus['new'].map(self.agent.preprocessing)
-
-            # Comprobamos que existan los ficheros relacionados con el clasificador, si no, los generamos.
-            if not (exists("classifier/svm.pkl") and exists("classifier/labelEncoder.pkl") and exists("classifier/tFidfMatrixVector.pkl")):
+                corpus['lemmatizedNew'] = corpus['news'].map(self.agent.preprocessing)
 
                 # Si queda alguno de ellos hay que eliminarlos para volver a generarlos.
                 if exists("classifier/svm.pkl"): remove("classifier/svm.pkl")
