@@ -10,18 +10,22 @@ read -n 1 input
 
 if [ "$input" = "y" ]; then
 
-	sudo apt-get -y install python3-tk
+	echo ""
+	sudo apt-get -y purge python3-tk 1> /dev/null 2> /dev/null
+	echo "Package removed."
 
 fi
 
-# pip
+# pip3
 
 echo -e "\nWould you like to delete pip package of your system? (y/n): "
 read -n 1 input
 
 if [ "$input" = "y" ]; then
 
-	sudo apt-get -y install python3-pip
+	echo ""
+	sudo apt-get -y purge python3-pip 1> /dev/null 2> /dev/null
+	echo "Package removed."
 
 fi
 
