@@ -118,12 +118,6 @@ class ClassifierAgent(Agent):
                 
                 kernel: tipo de kernel ('linear', 'poly', 'sigmoid', 'rbf', etc).
                 
-                degree ('poly'): grado del kernel polinómico (3 por defecto).
-                
-                gamma ('rbf', 'poly' y 'sigmoid'): Coeficiente del kernel.
-                    (<<): Menos curvatura en los límites de decisión.
-                    (>>): Más curvatura en los límites de decisión.
-
                 '''
                 svm = SVC(C=1, kernel='linear')
 
