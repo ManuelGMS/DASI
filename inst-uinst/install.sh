@@ -30,5 +30,5 @@ python3 -m pip install sklearn 1> /dev/null 2> /dev/null
 echo "Instalado: 9/11"
 python3 -m pip install googlenews 1> /dev/null 2> /dev/null
 echo "Instalado: 10/11"
-python3 -m pip install chatterbot 1> /dev/null 2> /dev/null
+python3 -m pip install --user chatterbot 1> /dev/null 2> /dev/null
 echo "Instalado: 11/11"
