@@ -75,7 +75,7 @@ class ChatBotAgent(Agent):
             # Para comprobar si hay que reentrenar al ChatBot.
             trainingNeeded = False
 
-            # Si no existe el fichero ... hay que realizar el entrenamiento.
+            # Si no existe el fichero, hay que realizar el entrenamiento.
             if not exists("chatterbot/database.sqlite3"):
                 trainingNeeded = True
     
