@@ -28,5 +28,5 @@ python3 -m pip install sklearn 1> /dev/null 2> /dev/null
 echo "Instalado: 9/11"
 python3 -m pip install googlenews 1> /dev/null 2> /dev/null
 echo "Instalado: 10/11"
-pip install chatterbot
+pip install --no-cache-dir chatterbot
 echo "Instalado: 11/11"
