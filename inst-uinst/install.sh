@@ -14,7 +14,7 @@ python3 -m pip install -U pip 1> /dev/null 2> /dev/null
 echo "Instalado: 3/12"
 
 # Instalamos las librerias de python.
-python3 -m pip install chatterbot
+python3 -m pip install chatterbot 1> /dev/null 2> /dev/null
 echo "Instalado: 4/12"
 python3 -m pip install nltk 1> /dev/null 2> /dev/null
 echo "Instalado: 5/12"
@@ -30,5 +30,5 @@ python3 -m pip install sklearn 1> /dev/null 2> /dev/null
 echo "Instalado: 10/12"
 python3 -m pip install googlenews 1> /dev/null 2> /dev/null
 echo "Instalado: 11/12"
-python3 -m pip install chatterbot
+python3 -m pip install chatterbot 1> /dev/null 2> /dev/null
 echo "Instalado: 12/12"
