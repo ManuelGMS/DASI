@@ -39,7 +39,7 @@ class ClassifierAgent(Agent):
         # Lematizador de palabras.
         lemmatizer = WordNetLemmatizer()
         
-        # Toquenizamos el texto (lo dividimos en palabras) y luego para cada una obtenemos un par (word, typeOfWord).
+        # Tokenizamos el texto (lo dividimos en palabras) y luego para cada una obtenemos un par (word, typeOfWord).
         for word, typeOfWord in pos_tag(word_tokenize(text.lower())):
             
             # Si la palabra es completamente alfabética y no es una stopword (no tiene significado por sí misma: artículos, pronombres, preposiciones, adverbios, etc ...).
