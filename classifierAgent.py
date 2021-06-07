@@ -36,7 +36,7 @@ class ClassifierAgent(Agent):
         # Contendrá el texto lematizado de una noticia.
         lemmatizedText = ""
         
-        # Lematizador de palabras: 
+        # Lematizador de palabras.
         lemmatizer = WordNetLemmatizer()
         
         # Toquenizamos el texto (lo dividimos en palabras) y luego para cada una obtenemos un par (word, typeOfWord).
