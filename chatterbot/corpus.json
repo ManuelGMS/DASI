@@ -15,6 +15,8 @@
     ["please classify this news", "give me the news"], 
     ["could you please classify this news", "give me the news"], 
     ["what type of news is this?", "give me the news"], 
+    ["what is the category of this news?", "give me the news"],
+    ["what category does this news belong to?", "give me the news"],  
     
     ["analyze", "choose the news"], 
     ["analyze news", "choose the news"], 
@@ -31,17 +33,29 @@
     ["give me info of the new", "choose the news"],
     ["i want to extract information of the news", "choose the news"],
     ["extract information", "choose the news"],
+    ["i want more information", "choose the news"],
+    ["i want more information of a news", "choose the news"],
 
     ["more news", "which topic do you want?"], 
     ["i want more news", "which topic do you want?"], 
     ["do you have news of an specific topic?", "which topic do you want?"], 
     ["are there more news", "which topic do you want?"], 
+    ["can you recommmend me news of a specific topic?", "which topic do you want?"], 
+    ["can you recommmend me news", "which topic do you want?"], 
+    ["i want to read more news", "which topic do you want?"], 
+    ["i want to read more of this", "which topic do you want?"], 
+    ["recommendations please", "which topic do you want?"], 
+    ["recommend me some news", "which topic do you want?"],
+    ["give me more news", "which topic do you want?"],
+    ["give me recommendations", "which topic do you want?"],   
 
     ["help", "\nWelcome to the help menu of this application.\nFor classify:\n\t* Try to write sentences that contains the word 'classify'.\n\t* Write sentences asking about the type of the news.\nFor analyze:\n\t* Try to write sentences that contains the word 'analyze'.\n\t* Write sentences asking about the information of the new."],
     ["i need some help", "\nWelcome to the help menu of this application.\nFor classify:\n\t* Try to write sentences that contains the word 'classify'.\n\t* Write sentences asking about the type of the news.\nFor analyze:\n\t* Try to write sentences that contains the word 'analyze'.\n\t* Write sentences asking about the information of the new."],
     ["i want some help", "\nWelcome to the help menu of this application.\nFor classify:\n\t* Try to write sentences that contains the word 'classify'.\n\t* Write sentences asking about the type of the news.\nFor analyze:\n\t* Try to write sentences that contains the word 'analyze'.\n\t* Write sentences asking about the information of the new."],
     ["give me some help", "\nWelcome to the help menu of this application.\nFor classify:\n\t* Try to write sentences that contains the word 'classify'.\n\t* Write sentences asking about the type of the news.\nFor analyze:\n\t* Try to write sentences that contains the word 'analyze'.\n\t* Write sentences asking about the information of the new."],
-    ["help me please", "\nWelcome to the help menu of this application.\nFor classify:\n\t* Try to write sentences that contains the word 'classify'.\n\t* Write sentences asking about the type of the news.\nFor analyze:\n\t* Try to write sentences that contains the word 'analyze'.\n\t* Write sentences asking about the information of the new."]
+    ["help me please", "\nWelcome to the help menu of this application.\nFor classify:\n\t* Try to write sentences that contains the word 'classify'.\n\t* Write sentences asking about the type of the news.\nFor analyze:\n\t* Try to write sentences that contains the word 'analyze'.\n\t* Write sentences asking about the information of the new."],
+    ["how can i use this?", "\nWelcome to the help menu of this application.\nFor classify:\n\t* Try to write sentences that contains the word 'classify'.\n\t* Write sentences asking about the type of the news.\nFor analyze:\n\t* Try to write sentences that contains the word 'analyze'.\n\t* Write sentences asking about the information of the new."],
+    ["how can i use the aplication?", "\nWelcome to the help menu of this application.\nFor classify:\n\t* Try to write sentences that contains the word 'classify'.\n\t* Write sentences asking about the type of the news.\nFor analyze:\n\t* Try to write sentences that contains the word 'analyze'.\n\t* Write sentences asking about the information of the new."]
     
   ]
 

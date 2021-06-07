@@ -18,7 +18,7 @@ class Model:
     # Este método carga los agentes cuando se inicia la aplicación.
     def loadAgents(self):
 
-        # Instanciamos el agente Analizador.
+        # Instanciamos el agente Recomendador.
         self.__recomenderAgent = RecomenderAgent("dasi4@blabber.im", "dasiproject4")
         # Indicamos al agente que comience (setup).
         future = self.__recomenderAgent.start()

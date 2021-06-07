@@ -19,10 +19,11 @@ class RecomenderAgent(Agent):
 
         # Este método se llama después de ejecutarse on_start().
         async def run(self):
+            # Definimos la configuracion para la busqueda.
             googlenews = GoogleNews()
-            googlenews.set_lang('en')
-            googlenews.set_period('7d')
-            googlenews.set_encode('utf-8')            
+            googlenews.set_lang('en')  # Idioma elegido ingles.
+            googlenews.set_period('7d') # Noticias de los ultimos 7 dias.
+            googlenews.set_encode('utf-8') # Formato de codificacion de caracteres UTF-8.       
 
             self.agent.googlenews = googlenews
 
@@ -44,10 +45,13 @@ class RecomenderAgent(Agent):
                 # Buscamos noticias de la categoria de msg.body
                 self.agent.googlenews.search(msg.body)
 
+                # results() devuelve una lista de diccionarios con varios campos de informacion.
                 solucion = self.agent.googlenews.results()
 
+                # Borramos los datos que tiene la variable googlenews tras realizar la busqueda.
                 self.agent.googlenews.clear()
 
+                # Preparamos el texto que se va a devolver, cogiendo los campos que nos interesan.
                 res = ""
                 for a in solucion:
                     res += str(a['title']) + '\n' + str(a['desc']) + '\n' + str(a['date']) + '\n'
@@ -59,7 +63,7 @@ class RecomenderAgent(Agent):
                 if res == "":
                     res = "I cant find news about that topic"
 
-                # No se ha encontrado la noticia.
+                # Almacenamos la respuesta.
                 self.agent.lastPrediction = res
 
             # Una vez se ha clasificado la noticia pasamos al estado de envío para informar al agente ChatBot.

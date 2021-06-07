@@ -21,10 +21,12 @@ class AnalyzerAgent(Agent):
 
     def get_continuous_chunks(self, text, label):
         
+        # Parseamos el texto (text) para poder analizarlo.
         chunked = ne_chunk(pos_tag(word_tokenize(text)))
         continuous_chunk = []
         current_chunk = []
 
+        # Bucle en el que compara las etiquetas de cada palabra con la categoria dada (label).
         for subtree in chunked:
             if type(subtree) == Tree and subtree.label() == label:
                 current_chunk.append(" ".join([token for token, pos in subtree.leaves()]))
@@ -36,6 +38,7 @@ class AnalyzerAgent(Agent):
             else:
                 continue
 
+        # Devolvemos la lista de palabras de la categoria dada (label).
         return continuous_chunk
 
     # Esta clase interna sirve para definir el comportamiento del agente.
@@ -67,23 +70,27 @@ class AnalyzerAgent(Agent):
                         # Obtenemos el contenido del fichero.
                         fileContent = file.read()
                     
-                    # Para una categoria
+                    # Sacamos la informacion del texto por cada categoria.
                     category = dictdictAux["type"]
                     valores = {}
                     for cate in category.split():
+                        # Llamamos a la funcion get_continuous_chunks() con el texto y la categoria en mayuscula.
                         valores[cate] = self.agent.get_continuous_chunks(fileContent, cate.upper())
 
-
+                    # Damos forma al texto con la informacion extraida de cada categoria.
                     encontrado = ""
                     for cate in valores:
                         if valores[cate] == []:
+                            # Si no encuentra informacion.
                             encontrado += "Can't find words of the category " + cate + " on this news\n"
                         else:
+                            # Si encuentra informacion.
                             encontrado += "Words of the category " + cate + " are: \n\t"
                             for word in valores[cate]:
                                 encontrado += word + ", "
                             encontrado += "\n"
 
+                    # Almacenamos la informacion.
                     self.agent.lastAnalyze = encontrado
 
                 else:
