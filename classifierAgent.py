@@ -92,7 +92,7 @@ class ClassifierAgent(Agent):
                 # Preprocesamos los textos de cada noticia.
                 corpus['lemmatizedNew'] = corpus['news'].map(self.agent.preprocessing)
 
-                # Si queda alguno de ellos hay que eliminarlos para volver a generarlos.
+                # Si queda alguno de estos ficheros hay que eliminarlos para volver a generarlos.
                 if exists("classifier/svm.pkl"): remove("classifier/svm.pkl")
                 if exists("classifier/labelEncoder.pkl"): remove("classifier/labelEncoder.pkl")
                 if exists("classifier/tFidfMatrixVector.pkl"): remove("classifier/tFidfMatrixVector.pkl")
@@ -116,7 +116,7 @@ class ClassifierAgent(Agent):
                     (<<): se ajustarán los hiperplanos para tener menor margen de separación y así conseguir que todos los puntos de entrenamiento se clasifiquen correctamente.
                     (>>): se ajustarńa los hiperplanos para tener un mayor margen de separación.
                 
-                kernel: tipo de kernel ('linear', 'poly', 'sigmoid', 'rbf', etc).
+                kernel: linear', 'poly', 'sigmoid', 'rbf', etc).
                 
                 '''
                 svm = SVC(C=1, kernel='linear')
