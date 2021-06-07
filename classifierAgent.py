@@ -116,7 +116,7 @@ class ClassifierAgent(Agent):
                     (<<): se ajustarán los hiperplanos para tener menor margen de separación y así conseguir que todos los puntos de entrenamiento se clasifiquen correctamente.
                     (>>): se ajustarńa los hiperplanos para tener un mayor margen de separación.
                 
-                kernel: linear', 'poly', 'sigmoid', 'rbf', etc).
+                kernel: linear.
                 
                 '''
                 svm = SVC(C=1, kernel='linear')
